@@ -1,132 +1,140 @@
 # Desafio Elite Dev - Lista de Filmes (Full-Stack)
 
-![Status](https://img.shields.io/badge/Status-Em_Desenvolvimento-yellow)
+Este projeto é uma aplicação full-stack de "Lista de Filmes", criada como parte do "Desafio Elite Dev". A aplicação permite aos usuários pesquisar filmes na API do TMDb, salvar seus favoritos e compartilhar suas listas.
 
-Este projeto é uma aplicação full-stack de "Lista de Filmes", criada como parte do "Desafio Elite Dev". A aplicação permite aos usuários pesquisar filmes, salvar seus favoritos e compartilhar suas listas, utilizando a API do The Movie Database (TMDb).
+A arquitetura é dividida em duas pastas principais:
+* `/Frontend`: Uma aplicação SPA (Single Page Application) feita com React e Vite.
+* `/Backend`: Uma API RESTful feita com Python e Django.
 
-O deploy da aplicação está disponível em: **[Link do Vercel Aqui]**
+---
 
 ## 💻 Stack Tecnológica
 
-A arquitetura deste projeto foi escolhida para ser moderna, performática e otimizada para a plataforma de deploy (Vercel).
-
-* **Front-End:** React, Vite, TypeScript, Tailwind CSS, Shadcn UI
-* **Back-End:** Node.js (via Vercel Serverless Functions)
-* **Banco de Dados:** Vercel Postgres
-* **ORM:** Prisma
-* **Autenticação:** Firebase Authentication (Login com Google)
-* **Deploy:** Vercel
-
----
-
-## 🎯 Funcionalidades
-
-Lista de funcionalidades requisitadas pelo desafio e o status atual de cada uma.
-
-### ✅ Concluídas
-- [ ] Configuração inicial do projeto (Vite, TS, Tailwind, Prisma, Firebase).
-
-### 🚧 Em Andamento / Pendentes
-- [ ] Autenticação de usuário (Login com Google).
-- [ ] Interface de pesquisa de filmes (consumindo API TMDb).
-- [ ] Exibição de detalhes dos filmes (com nota em destaque).
-- [ ] Funcionalidade de Adicionar/Remover filmes da lista de favoritos.
-- [ ] Armazenamento dos favoritos no banco de dados (associado ao usuário).
-- [ ] Geração de link compartilhável para a lista de favoritos.
-- [ ] Página pública para exibir uma lista de favoritos a partir de um link.
+| Área | Tecnologia |
+| :--- | :--- |
+| **Frontend** | React, Vite, TypeScript, Tailwind CSS, Shadcn UI, TanStack Router, Axios |
+| **Backend** | Python, Django (4.2), Django REST Framework, `PyMySQL`, `django-cors-headers` |
+| **Autenticação** | Firebase Authentication (Login com Google) |
+| **Banco de Dados (Dev)**| MySQL (via XAMPP / MariaDB 10.4) |
+| **Banco de Dados (Prod)**| AWS RDS (MySQL) |
+| **Deploy (Planejado)** | AWS (Frontend no S3/CloudFront, Backend no EC2/Elastic Beanstalk) |
 
 ---
 
-## 🚀 Como Executar o Projeto Localmente
+## 🚀 Status Atual do Projeto (03/11/2025)
 
-Siga os passos abaixo para configurar e rodar a aplicação em seu ambiente de desenvolvimento.
+Esta seção resume o que foi feito até agora.
 
-### 1. Pré-requisitos
+### ✅ Concluído
+* **Setup do Ambiente:** Projeto dividido em pastas `Frontend/` e `Backend/`.
+* **Backend (`Backend/`):**
+    * Ambiente virtual (`venv`) criado.
+    * Django 4.2 e todas as dependências (DRF, PyMySQL, CORS, Firebase Admin) instalados.
+    * Projeto Django e app `favorites` criados.
+    * Configuração do `settings.py` (CORS, `INSTALLED_APPS`) finalizada.
+    * Configuração do `__init__.py` para usar `PyMySQL`.
+    * **Conexão com o banco de dados MySQL (XAMPP) local está 100% funcional.**
+    * Migrações (`migrate`) iniciais aplicadas com sucesso.
+    * Superusuário (`createsuperuser`) criado.
+    * Servidor (`runserver`) está rodando.
+    * **Painel de Admin (`/admin/`) está acessível.**
+* **Frontend (`Frontend/`):**
+    * Projeto criado com Vite + React + TS.
+    * Todas as dependências (Tailwind, Shadcn, Router, Axios, Firebase) instaladas.
+    * Configuração do Tailwind (via plugin do Vite) finalizada.
+    * Configuração do Shadcn UI (`npx init`) finalizada.
+    * Arquivo de configuração do Firebase (`src/lib/firebase.ts`) criado.
 
-- Node.js (v18 ou superior)
-- `npm` ou `yarn`
-- Uma conta no [Google Firebase](https://console.firebase.google.com/) (para chaves de autenticação).
-- Uma conta no [TMDb](https://www.themoviedb.org/signup) (para a chave de API).
-- Vercel CLI (para rodar o ambiente completo): `npm install -g vercel`
+### 🚧 Próximos Passos (O Escopo Atual)
+1.  **Backend:**
+    * Definir os Modelos de dados em `favorites/models.py` (ex: `FavoriteMovie`).
+    * Criar e aplicar as novas migrações.
+    * Criar os `serializers.py` e `views.py` (API Endpoints) para a lista de favoritos.
+    * Criar o endpoint de validação do token do Firebase.
+2.  **Frontend:**
+    * Criar a estrutura de rotas (páginas) com o TanStack Router.
+    * Desenvolver os componentes da UI (Home, Pesquisa, Card de Filme).
+    * Implementar o fluxo de login com Google.
+    * Conectar o Front (Axios) com a API do Back (Django).
 
-### 2. Clonar o Repositório
+---
 
-```bash
-git clone [https://github.com/seu-usuario/seu-repositorio.git](https://github.com/seu-usuario/seu-repositorio.git)
-cd seu-repositorio
+## ⚙️ Como Configurar e Rodar (Em Casa)
 
-3. Instalar Dependências
-Bash
+Siga estes passos para recriar o ambiente de desenvolvimento em uma nova máquina.
 
-npm install
-4. Configurar Variáveis de Ambiente
-Crie um arquivo .env na raiz do projeto, copiando o .env.example (se houver) ou adicionando as seguintes chaves:
+### Pré-requisitos
+* **Git**
+* **Node.js** (v18 ou superior)
+* **Python** (3.10 ou superior)
+* **XAMPP** (ou outro servidor MySQL local). *Nota: O projeto foi configurado para MariaDB 10.4 (que vem no XAMPP) usando Django 4.2.*
 
-Snippet de código
+### 1. Configuração do Ambiente
+1.  Clone o repositório:
+    ```bash
+    git clone [URL_DO_SEU_REPO]
+    cd [NOME_DO_PROJETO]
+    ```
+2.  Inicie o **MySQL** pelo painel do XAMPP.
+3.  Acesse o **MySQL Workbench** (ou phpMyAdmin) e crie o banco de dados:
+    ```sql
+    CREATE DATABASE verzel_db;
+    ```
 
-# URL do banco de dados (fornecida pelo Vercel Postgres)
-POSTGRES_PRISMA_URL="sua_url_do_banco"
+### 2. Configuração do Backend
+1.  Abra um terminal e navegue até a pasta `Backend/`:
+    ```bash
+    cd Backend
+    ```
+2.  Crie e ative o ambiente virtual:
+    ```bash
+    python -m venv venv
+    source venv/Scripts/activate
+    ```
+3.  Instale todas as dependências (que você "congelou" no `requirements.txt`):
+    ```bash
+    pip install -r requirements.txt
+    ```
+4.  Verifique a configuração do banco em `config/settings.py` (deve apontar para `127.0.0.1` e `verzel_db`, como já está).
+5.  Rode as migrações para criar as tabelas no seu novo banco:
+    ```bash
+    python manage.py migrate
+    ```
+6.  Crie seu usuário administrador local:
+    ```bash
+    python manage.py createsuperuser
+    ```
 
-# Chave de serviço do Firebase Admin (em formato JSON, colada como string)
-FIREBASE_SERVICE_ACCOUNT='{"type": "service_account", ...}'
+### 3. Configuração do Frontend
+1.  Abra um **segundo terminal** e navegue até a pasta `Frontend/`:
+    ```bash
+    cd Frontend
+    ```
+2.  Instale todas as dependências do Node:
+    ```bash
+    npm install
+    ```
+3.  Crie o arquivo de ambiente para o Firebase. Crie um arquivo chamado `.env` na raiz do `Frontend/` e adicione suas chaves:
+    ```env
+    # Arquivo: Frontend/.env
+    VITE_FIREBASE_API_KEY="SUA_CHAVE_AQUI"
+    VITE_FIREBASE_AUTH_DOMAIN="SEU_DOMINIO_AQUI"
+    VITE_FIREBASE_PROJECT_ID="SEU_ID_AQUI"
+    # ... (etc., copie do seu arquivo src/lib/firebase.ts)
+    ```
 
-# Chave da API do The Movie Database (TMDb)
-TMDB_API_KEY="sua_chave_tmdb"
+### 4. Rodando a Aplicação
+* **Terminal 1 (Backend):**
+    ```bash
+    cd Backend
+    source venv/Scripts/activate
+    python manage.py runserver
+    ```
+    *(Seu Back-end estará rodando em `http://127.0.0.1:8000`)*
 
-# Configuração do Firebase Client (para o Front-End)
-VITE_FIREBASE_API_KEY="sua_chave_aqui"
-VITE_FIREBASE_AUTH_DOMAIN="seu_dominio.firebaseapp.com"
-VITE_FIREBASE_PROJECT_ID="seu_project_id"
-VITE_FIREBASE_STORAGE_BUCKET="seu_storage_bucket"
-VITE_FIREBASE_MESSAGING_SENDER_ID="seu_sender_id"
-VITE_FIREBASE_APP_ID="seu_app_id"
-Importante: As chaves do Front-End (Firebase Client) precisam começar com o prefixo VITE_ para que o Vite as exponha para a aplicação.
-
-5. Rodar as Migrations do Banco
-Aplique o schema do Prisma no seu banco de dados Vercel Postgres:
-
-Bash
-
-npx prisma migrate dev
-(Pode ser necessário rodar npx prisma generate após a migração).
-
-6. Rodar o Projeto
-Use o Vercel CLI para simular o ambiente de produção (Front-End + Back-End Serverless) localmente:
-
-Bash
-
-vercel dev
-A aplicação estará disponível em http://localhost:3000.
-
-📂 Estrutura do Projeto
-Este projeto utiliza uma estrutura de "monorepo" otimizada para o Vercel:
-
-/ (Raiz): Contém toda a configuração do Front-End (Vite, React, src/).
-
-/api/: Contém todo o Back-End (Serverless Functions em Node.js).
-
-/prisma/: Contém o schema e as migrations do banco de dados.
-
-O Vercel automaticamente identifica o Front-End na raiz e as funções na pasta /api, fazendo o deploy de ambos de forma integrada.
-
-📓 Diário de Bordo & Decisões de Arquitetura
-Como solicitado no desafio, esta seção explica as decisões tomadas e o progresso diário.
-
-Dia 1 (03/11/2025)
-O que fiz: Criação da estrutura inicial do projeto com Vite + React + TS. Configuração do Tailwind CSS e inicialização do Shadcn UI.
-
-Decisões: Escolhi o stack Vite/React/Tailwind pela alta produtividade. Para o back-end, optei por Vercel Serverless Functions com Prisma e Vercel Postgres, pois é a arquitetura nativa da plataforma de deploy e garante o bônus de 1 ponto. A autenticação será feita com Firebase (Google) apenas para obter a identidade do usuário, mantendo os dados da aplicação no Postgres.
-
-Dificuldades: Nenhuma até o momento.
-
-Dia 2 (A preencher)
-O que fiz:
-
-Decisões:
-
-Dificuldades:
-
-⚠️ Pontos de Atenção (Não Funciona)
-Conforme a exigência do desafio, esta seção lista o que (ainda) não está funcionando como o esperado ou quais bugs são conhecidos.
-
-(A ser preenchido conforme o desenvolvimento)
+* **Terminal 2 (Frontend):**
+    ```bash
+    cd Frontend
+    npm run dev
+    ```
+    *(Seu Front-end estará rodando em `http://localhost:5173`)*
