@@ -23,7 +23,7 @@ A arquitetura é dividida em duas pastas principais:
 
 ## 🚀 Status Atual do Projeto (04/11/2025)
 
-Esta seção resume o que foi feito até agora. O **Backend está 100% concluído (V1 e V2)** e pronto para o desenvolvimento do Frontend.
+Esta seção resume o que foi feito até agora. O **Backend está 100% concluído (V1 e V2)**. O **Frontend tem seu "esqueleto"** de rotas definido.
 
 ### ✅ Concluído
 * **Setup do Ambiente:**
@@ -33,6 +33,9 @@ Esta seção resume o que foi feito até agora. O **Backend está 100% concluíd
     * [X] Projeto criado com Vite + React + TS.
     * [X] Dependências instaladas (Tailwind, Shadcn, Router, Axios, Firebase Client).
     * [X] Configuração completa do Tailwind, Shadcn e Firebase (`firebase.ts`).
+    * [X] **Estrutura de Rotas:**
+        * [X] Configurado o **TanStack Router** (file-based routing).
+        * [X] Criado o "esqueleto" de todas as páginas necessárias (Home, Login, Favoritos, Share).
 * **Backend (`Backend/`):**
     * [X] Ambiente virtual (`venv`) e `requirements.txt` finalizados.
     * [X] Django 4.2 LTS e todas as dependências (DRF, PyMySQL, CORS, Firebase Admin) instalados.
@@ -46,14 +49,14 @@ Esta seção resume o que foi feito até agora. O **Backend está 100% concluíd
         * [X] Lógica de autenticação com Firebase Admin (`auth.py`) implementada.
         * [X] Endpoints de `favorites` e `shared_lists` **travados** (requerem token `IsAuthenticated`).
         * [X] Lógica das Views (`get_queryset`, `perform_create`) atualizada para filtrar dados por `request.user`.
-        * [X] **TESTES (V2):** Endpoints seguros testados no Postman, retornando `401 Unauthorized` (como esperado) quando o token não é fornecido.
+        * [X] **TESTES (V2):** Endpoints seguros testados no Postman, retornando `401 Unauthorized`.
 
 ### 🚧 Próximos Passos
 1.  **Frontend (Desenvolvimento):**
-    * [ ] Criar a estrutura de rotas (páginas) com o TanStack Router.
-    * [ ] Criar um Contexto/Estado Global (Zustand/Jotai) para gerenciar o estado do usuário e o token.
-    * [ ] Implementar o fluxo de login com Google (componente de Login/Logout).
+    * [ ] Criar um **Contexto/Estado Global** (AuthContext) para gerenciar o estado do usuário e o token.
+    * [ ] Implementar o fluxo de login com Google (componente de Login/Logout na página `/login`).
     * [ ] Criar o `apiService` (com `axios`) para encapsular as chamadas de API (enviando o token).
+    * [ ] Proteger a rota `/favoritos` (redirecionar se não estiver logado).
     * [ ] Desenvolver os componentes da UI (SearchBar, MovieCard, Layout).
     * [ ] Conectar a UI com os endpoints do backend.
 2.  **Deploy (AWS):**
@@ -63,41 +66,47 @@ Esta seção resume o que foi feito até agora. O **Backend está 100% concluíd
 
 ## 📓 Diário de Bordo & Decisões de Arquitetura
 
-Esta seção detalha o processo de pensamento e as decisões tomadas durante o desenvolvimento, demonstrando a resolução de problemas no dia a dia.
+Esta seção detalha o processo de pensamento e as decisões tomadas durante o desenvolvimento.
 
 ### Dia 1 (03/11/2025): Setup e Pivô Estratégico
 
 * **O que fiz:** Iniciei o desafio com a stack sugerida (React, Node.js, Vercel Postgres), mas enfrentei diversos atritos de plataforma (erros de `npm` no Windows, complexidade do Prisma/Vercel).
-* **Decisão (O Pivô):** Decidi **pivotar a stack** para uma arquitetura que domino, que é mais robusta e com a qual já tenho experiência de deploy (AWS): **React + Django + MySQL**.
+* **Decisão (O Pivô):** Percebi que gastar mais tempo lutando contra a configuração de ferramentas que não domino seria um risco para o prazo de 4-7 dias. Decidi **pivotar a stack** para uma arquitetura que domino, que é mais robusta e com a qual já tenho experiência de deploy (AWS): **React + Django + MySQL**.
 * **Resultado do Dia 1:** Estrutura de monorepo (`Frontend/` e `Backend/`) criada. Ambiente do `Frontend/` (Vite, TS, Tailwind, Shadcn, Firebase) 100% configurado. Base do `Backend/` (Django, `venv`) instalada.
 
-### Dia 2 (04/11/2025): Construção e Segurança da API Backend (V1 e V2)
+### Dia 2 (04/11/2025): Construção Full-Stack (Backend Seguro e Frontend Routing)
 
-* **O que fiz:** Foco total em construir e proteger a API do `Backend/`.
-* **Desafios Resolvidos:**
+* **O que fiz:** Foco total em construir uma fundação sólida em ambas as pontas (Frontend e Backend).
+* **Desafios Resolvidos (Backend):**
     1.  **`mysqlclient` (Problema):** A instalação falhou no Windows (exigindo C++ Build Tools).
-    2.  **`mysqlclient` (Solução):** Substituí o driver por `PyMySQL` e configurei o `__init__.py` do Django.
+    2.  **`mysqlclient` (Solução):** Substituí o driver por `PyMySQL`.
     3.  **Versão (Problema):** O Django 5.x não é compatível com o MariaDB 10.4 do XAMPP.
-    4.  **Versão (Solução):** Fiz o downgrade para **Django 4.2 LTS**, garantindo compatibilidade e estabilidade.
+    4.  **Versão (Solução):** Fiz o downgrade para **Django 4.2 LTS**.
     5.  **Segredos (Problema):** Chaves de API e senhas estavam no código.
-    6.  **Segredos (Solução):** Implementei `python-dotenv` para carregar segredos (`.env`), criei arquivos `.env.example` para documentação e atualizei o `.gitignore` para proteger chaves.
-* **Progresso do Código (V1 - Lógica):**
+    6.  **Segredos (Solução):** Implementei `python-dotenv` e `.env.example` para carregar segredos (`.env`), e atualizei o `.gitignore`.
+* **Progresso do Código (Backend V1 - Lógica):**
     * Conexão com o banco MySQL local (`migrate` OK).
     * Defini os `models.py`, `serializers.py`, e `views.py` (CRUD e Pesquisa TMDb).
     * Configurei todas as rotas da API em `urls.py`.
-    * **Teste V1:** Todos os endpoints V1 foram **validados um a um no Postman** (GET, POST, DELETE) e operaram como esperado.
-* **Progresso do Código (V2 - Segurança):**
+    * **Teste V1:** Todos os endpoints V1 foram **validados um a um no Postman**.
+* **Progresso do Código (Backend V2 - Segurança):**
     * Criei a classe `FirebaseAuthentication` (`auth.py`) para validar tokens JWT do Firebase Admin.
-    * Travei os endpoints de `favorites` e `shared_lists` (requerem `IsAuthenticated`).
-    * Refatorei as `views.py` para usar `request.user` (filtrando `get_queryset` e salvando em `perform_create`), garantindo que um usuário só acesse seus próprios dados.
-    * **Teste V2:** Confirmei que o servidor inicia corretamente e que o Postman (sem token) recebe a resposta `401 Unauthorized` esperada.
-* **Resultado do Dia 2:** O **Backend V2 está 100% funcional e seguro.** O desenvolvimento do servidor está concluído e pronto para o Frontend.
+    * Travei os endpoints de `favorites` e `shared_lists`.
+    * Refatorei as `views.py` para usar `request.user` (filtrando `get_queryset` e salvando em `perform_create`).
+    * **Teste V2:** Confirmei que o Postman (sem token) recebe a resposta `401 Unauthorized`.
+* **Progresso do Código (Frontend - Routing):**
+    1.  Instalei e configurei o **`@tanstack/router-vite-plugin`**.
+    2.  Refatorei o `main.tsx` para usar o `RouterProvider`, removendo o `App.tsx` padrão.
+    3.  Criei toda a **estrutura de rotas baseada em arquivos** (file-based routing) dentro de `src/routes/`.
+    4.  Criei as rotas placeholder para o Layout Raiz (`__root.tsx`), Home (`index.tsx`), `login.tsx`, `favoritos.tsx` e a página dinâmica `share.$listId.tsx`.
+    5.  Corrigi o `.gitignore` do frontend para ignorar o arquivo `routeTree.gen.ts` gerado.
+* **Resultado do Dia 2:** O **Backend V2 está 100% funcional e seguro.** O **Frontend tem seu "esqueleto" de rotas 100% funcional.** O projeto está agora pronto para a implementação da lógica de estado global (autenticação) no frontend.
 
 ---
 
 ## ⚙️ Como Configurar e Rodar
 
-(Esta seção permanece a mesma, mas agora os `.env.example` estão no repositório, tornando-a mais fácil)
+(Esta seção permanece a mesma)
 
 ### Pré-requisitos
 * **Git**
