@@ -21,47 +21,87 @@ A arquitetura é dividida em duas pastas principais:
 
 ---
 
-## 🚀 Status Atual do Projeto (03/11/2025)
+## 🚀 Status Atual do Projeto (04/11/2025)
 
 Esta seção resume o que foi feito até agora.
 
 ### ✅ Concluído
-* **Setup do Ambiente:** Projeto dividido em pastas `Frontend/` e `Backend/`.
-* **Backend (`Backend/`):**
-    * Ambiente virtual (`venv`) criado.
-    * Django 4.2 e todas as dependências (DRF, PyMySQL, CORS, Firebase Admin) instalados.
-    * Projeto Django e app `favorites` criados.
-    * Configuração do `settings.py` (CORS, `INSTALLED_APPS`) finalizada.
-    * Configuração do `__init__.py` para usar `PyMySQL`.
-    * **Conexão com o banco de dados MySQL (XAMPP) local está 100% funcional.**
-    * Migrações (`migrate`) iniciais aplicadas com sucesso.
-    * Superusuário (`createsuperuser`) criado.
-    * Servidor (`runserver`) está rodando.
-    * **Painel de Admin (`/admin/`) está acessível.**
+* **Setup do Ambiente:**
+    * [X] Setup inicial (Vercel, Node.js, Postgres) **descartado** em favor de uma stack mais robusta e familiar.
+    * [X] Estrutura final do monorepo criada com pastas `Frontend/` e `Backend/`.
 * **Frontend (`Frontend/`):**
-    * Projeto criado com Vite + React + TS.
-    * Todas as dependências (Tailwind, Shadcn, Router, Axios, Firebase) instaladas.
-    * Configuração do Tailwind (via plugin do Vite) finalizada.
-    * Configuração do Shadcn UI (`npx init`) finalizada.
-    * Arquivo de configuração do Firebase (`src/lib/firebase.ts`) criado.
+    * [X] Projeto criado com Vite + React + TS.
+    * [X] Dependências instaladas (Tailwind, Shadcn, Router, Axios, Firebase).
+    * [X] Configuração do Tailwind (plugin do Vite) e `tailwind.config.js` manual finalizada.
+    * [X] Configuração do Shadcn UI (`npx init`) finalizada.
+    * [X] Configuração do Firebase (`src/lib/firebase.ts` + `.env`) concluída.
+* **Backend (`Backend/`):**
+    * [X] Ambiente virtual (`venv`) criado e `requirements.txt` gerado.
+    * [X] Django 4.2 LTS instalado (para compatibilidade com MariaDB 10.4).
+    * [X] Dependências (DRF, PyMySQL, CORS, Firebase Admin) instaladas.
+    * [X] Configuração do `settings.py` (CORS, `INSTALLED_APPS`, `DATABASES`) finalizada.
+    * [X] Conexão com banco MySQL (XAMPP/MariaDB) **100% funcional**.
+    * [X] Migrações (`migrate`) iniciais aplicadas.
+    * [X] Superusuário criado e painel `/admin/` **acessível**.
+    * [X] **Models:** Modelos `User`, `FavoriteMovie`, e `SharedList` criados em `models.py`.
+    * [X] **Migrações:** Novas migrações dos modelos aplicadas com sucesso.
+    * [X] **API (Views/Serializers):** Endpoints da API V1 criados (CRUD de Favoritos, CRUD de Links, Pesquisa TMDb).
+    * [X] **Rotas:** URLs da API configuradas em `config/urls.py` e `favorites/urls.py`.
+    * [X] **TESTES:** Todos os endpoints da API V1 foram **testados e validados com sucesso via Postman.**
 
-### 🚧 Próximos Passos (O Escopo Atual)
-1.  **Backend:**
-    * Definir os Modelos de dados em `favorites/models.py` (ex: `FavoriteMovie`).
-    * Criar e aplicar as novas migrações.
-    * Criar os `serializers.py` e `views.py` (API Endpoints) para a lista de favoritos.
-    * Criar o endpoint de validação do token do Firebase.
-2.  **Frontend:**
-    * Criar a estrutura de rotas (páginas) com o TanStack Router.
-    * Desenvolver os componentes da UI (Home, Pesquisa, Card de Filme).
-    * Implementar o fluxo de login com Google.
-    * Conectar o Front (Axios) com a API do Back (Django).
+### 🚧 Próximos Passos
+1.  **Backend (Segurança):**
+    * [ ] Implementar a lógica de autenticação.
+    * [ ] Criar um "helper" ou "middleware" para validar o Token JWT do Firebase em cada requisição.
+    * [ ] Travar os endpoints de `favorites` e `shared-lists` para que um usuário só possa ver e editar os *seus próprios* dados.
+2.  **Frontend (Desenvolvimento):**
+    * [ ] Criar a estrutura de rotas (páginas) com o TanStack Router.
+    * [ ] Criar um Contexto/Estado Global (Zustand/Jotai) para gerenciar o estado do usuário e o token.
+    * [ ] Implementar o fluxo de login com Google (componente de Login/Logout).
+    * [ ] Criar o `apiService` (com `axios`) para encapsular as chamadas de API (enviando o token).
+    * [ ] Desenvolver os componentes da UI (SearchBar, MovieCard, Layout).
+    * [ ] Conectar a UI com os endpoints do backend.
+3.  **Deploy (AWS):**
+    * [ ] Iniciar a configuração do RDS, S3 e Elastic Beanstalk.
 
 ---
 
-## ⚙️ Como Configurar e Rodar (Em Casa)
+## 📓 Diário de Bordo & Decisões de Arquitetura
 
-Siga estes passos para recriar o ambiente de desenvolvimento em uma nova máquina.
+Esta seção detalha o processo de pensamento e as decisões tomadas durante o desenvolvimento, demonstrando a resolução de problemas no dia a dia.
+
+### Dia 1 (03/11/2025): Setup e Pivô Estratégico
+
+* **O que fiz:** Iniciei o desafio com a stack sugerida (React, Node.js, Vercel Postgres). Gastei um tempo considerável configurando o ambiente, mas enfrentei diversos atritos de plataforma:
+    1.  Erros persistentes no `npm` (loops de `audit`, falhas no `npx`).
+    2.  Erros de `EBUSY` no Windows ao instalar o Prisma.
+    3.  Incompatibilidade entre a arquitetura Serverless do Vercel e um `npx` quebrado.
+    4.  Atrito de aprendizado com o Vercel Postgres/Neon, que eu não dominava.
+* **Decisão (O Pivô):** Percebi que gastar mais tempo lutando contra a configuração de ferramentas que não domino seria um risco para o prazo de 4-7 dias. Decidi **pivotar a stack** para uma arquitetura que domino, que é mais robusta e com a qual já tenho experiência de deploy (AWS): **React + Django + MySQL**.
+* **Resultado do Dia 1:** A stack foi redefinida. Criei a nova estrutura de monorepo (`Frontend/` e `Backend/`). Configurei todo o ambiente do `Frontend/` (Vite, TS, Tailwind, Shadcn, Firebase, Rotas). Configurei a base do `Backend/` (Django, `venv`, `pip install`).
+
+### Dia 2 (04/11/2025): Construção e Validação da API Backend
+
+* **O que fiz:** Foco total em construir a API do `Backend/`.
+* **Desafios Resolvidos:**
+    1.  **Conexão com BD:** Configurei o XAMPP (MySQL/MariaDB).
+    2.  **`mysqlclient` (Problema):** A instalação do `mysqlclient` falhou no Windows (exigindo C++ Build Tools).
+    3.  **`mysqlclient` (Solução):** Substituí o driver por `PyMySQL` e configurei o `__init__.py` do Django para usá-lo, resolvendo a instalação sem precisar compilar.
+    4.  **Versão (Problema):** O Django 5.x (mais novo) não é compatível com o MariaDB 10.4 do XAMPP.
+    5.  **Versão (Solução):** Fiz o downgrade do projeto para **Django 4.2 LTS** (Long-Term Support), que é 100% compatível, mais estável e uma escolha profissional.
+* **Progresso do Código:**
+    1.  A conexão com o banco MySQL local foi estabelecida com sucesso (`migrate` OK).
+    2.  Defini os `models.py` (`User`, `FavoriteMovie`, `SharedList`).
+    3.  Criei os `serializers.py` para traduzir os modelos para JSON.
+    4.  Implementei as `views.py` (usando `ModelViewSet` para CRUD) e a view customizada `TMDbSearchAPIView` para o Requisito 4 (Pesquisa).
+    5.  Configurei todas as rotas da API em `urls.py`.
+* **Resultado do Dia 2:** O **Backend V1 está 100% funcional.** Todos os endpoints (Listar, Criar, Deletar Favoritos; Criar Link; Pesquisar no TMDb) foram validados um a um no Postman e estão operando como esperado. O projeto está pronto para a implementação da camada de segurança (autenticação).
+
+---
+
+## ⚙️ Como Configurar e Rodar
+
+(Esta seção permanece a mesma, pois as instruções de setup que você aprovou estão perfeitas)
 
 ### Pré-requisitos
 * **Git**
@@ -91,16 +131,15 @@ Siga estes passos para recriar o ambiente de desenvolvimento em uma nova máquin
     python -m venv venv
     source venv/Scripts/activate
     ```
-3.  Instale todas as dependências (que você "congelou" no `requirements.txt`):
+3.  Instale todas as dependências (do `requirements.txt`):
     ```bash
     pip install -r requirements.txt
     ```
-4.  Verifique a configuração do banco em `config/settings.py` (deve apontar para `127.0.0.1` e `verzel_db`, como já está).
-5.  Rode as migrações para criar as tabelas no seu novo banco:
+4.  Rode as migrações para criar as tabelas:
     ```bash
     python manage.py migrate
     ```
-6.  Crie seu usuário administrador local:
+5.  Crie seu usuário administrador local:
     ```bash
     python manage.py createsuperuser
     ```
@@ -120,7 +159,7 @@ Siga estes passos para recriar o ambiente de desenvolvimento em uma nova máquin
     VITE_FIREBASE_API_KEY="SUA_CHAVE_AQUI"
     VITE_FIREBASE_AUTH_DOMAIN="SEU_DOMINIO_AQUI"
     VITE_FIREBASE_PROJECT_ID="SEU_ID_AQUI"
-    # ... (etc., copie do seu arquivo src/lib/firebase.ts)
+    # ... (etc.)
     ```
 
 ### 4. Rodando a Aplicação
