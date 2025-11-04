@@ -56,3 +56,7 @@ dist-ssr/
 
 # Arquivos de ambiente locais específicos
 *.local
+
+# Ignora o mapa de rotas gerado pelo TanStack Router
+src/routeTree.gen.ts
+.tanstack/
