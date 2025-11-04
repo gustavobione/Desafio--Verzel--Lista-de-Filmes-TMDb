@@ -138,3 +138,5 @@ CORS_ALLOWED_ORIGINS = [
     "http://localhost:5173",
     "http://127.0.0.1:5173",
 ]
+
+TMDB_API_KEY = "db9eb7d74eeebef8325f0c8e962afe29"
