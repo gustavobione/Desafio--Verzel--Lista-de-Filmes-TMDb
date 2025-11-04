@@ -1,3 +1,6 @@
 from django.contrib import admin
+from .models import User, FavoriteMovie, SharedList
 
-# Register your models here.
+admin.site.register(User)
+admin.site.register(FavoriteMovie)
+admin.site.register(SharedList)
