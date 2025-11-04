@@ -32,8 +32,6 @@ Frontend/.env
 # Ambientes Virtuais
 # Ignora o venv dentro do Backend
 Backend/venv/
-# Ignora o venv-1 que está na raiz
-venv-1/
 
 # Cache de Bytecode do Python
 __pycache__/
@@ -41,6 +39,9 @@ __pycache__/
 
 # Banco de dados local
 db.sqlite3
+
+# Ignora a chave de serviço do Firebase
+serviceAccountKey.json
 
 # ==================================
 # FRONTEND (Node / React / Vite)
