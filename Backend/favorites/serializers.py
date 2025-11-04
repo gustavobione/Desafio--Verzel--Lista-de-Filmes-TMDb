@@ -15,10 +15,10 @@ class FavoriteMovieSerializer(serializers.ModelSerializer):
         fields = '__all__'
         # Vamos fazer o 'user' ser "apenas leitura".
         # A lógica da view (Etapa 4) irá preenchê-lo
-        read_only_fields = ['id', 'added_at']
+        read_only_fields = ['user', 'id', 'added_at']
 
 class SharedListSerializer(serializers.ModelSerializer):
     class Meta:
         model = SharedList
         fields = '__all__'
-        read_only_fields = ['id', 'created_at']
+        read_only_fields = ['user','id', 'created_at']

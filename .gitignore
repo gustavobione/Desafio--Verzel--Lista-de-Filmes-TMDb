@@ -1,5 +1,7 @@
-# Logs
-logs
+# ==================================
+# GERAL E LOGS
+# ==================================
+logs/
 *.log
 npm-debug.log*
 yarn-debug.log*
@@ -7,16 +9,15 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
-node_modules
-dist
-dist-ssr
-*.local
+# Arquivos de ambiente - NUNCA ENVIE SENHAS!
 .env
+Backend/.env
+Frontend/.env
 
-# Editor directories and files
+# Configurações de Editor
 .vscode/*
 !.vscode/extensions.json
-.idea
+.idea/
 .DS_Store
 *.suo
 *.ntvs*
@@ -24,21 +25,38 @@ dist-ssr
 *.sln
 *.sw?
 
+# ==================================
+# BACKEND (Python / Django)
+# ==================================
 
-# Arquivo: .gitignore (na raiz do projeto)
+# Ambientes Virtuais
+# Ignora o venv dentro do Backend
+Backend/venv/
 
-# --- Python / Django ---
-# Ignora as pastas de cache de bytecode
+# Cache de Bytecode do Python
 __pycache__/
 *.pyc
 
-# Ignora o ambiente virtual (MUITO IMPORTANTE!)
-Backend/venv/
-
-# Ignora o banco de dados local do SQLite (que não estamos mais usando, mas é boa prática)
+# Banco de dados local
 db.sqlite3
 
-# Ignora arquivos de ambiente (que contêm senhas)
-.env
-Frontend/.env
-Backend/.env
+# Ignora a chave de serviço do Firebase
+serviceAccountKey.json
+
+# ==================================
+# FRONTEND (Node / React / Vite)
+# ==================================
+
+# Dependências
+node_modules/
+
+# Pasta de Build
+dist/
+dist-ssr/
+
+# Arquivos de ambiente locais específicos
+*.local
+
+# Ignora o mapa de rotas gerado pelo TanStack Router
+src/routeTree.gen.ts
+.tanstack/
