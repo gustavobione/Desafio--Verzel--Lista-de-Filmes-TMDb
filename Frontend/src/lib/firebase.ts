@@ -1,7 +1,12 @@
 // Arquivo: Frontend/src/lib/firebase.ts
 
 import { initializeApp } from "firebase/app";
-import { getAuth, GoogleAuthProvider } from "firebase/auth";
+import { 
+  getAuth, 
+  GoogleAuthProvider, 
+  createUserWithEmailAndPassword, 
+  signInWithEmailAndPassword
+} from "firebase/auth";
 
 // Pega as variáveis de ambiente do .env
 const firebaseConfig = {
@@ -20,7 +25,4 @@ const app = initializeApp(firebaseConfig);
 // Exporta os serviços que você vai usar
 export const auth = getAuth(app);
 export const googleProvider = new GoogleAuthProvider();
-
-// Você pode adicionar o Analytics de volta se precisar:
-// import { getAnalytics } from "firebase/analytics";
-// export const analytics = getAnalytics(app);
+export { createUserWithEmailAndPassword, signInWithEmailAndPassword };

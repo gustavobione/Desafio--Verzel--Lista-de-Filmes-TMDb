@@ -1,12 +1,9 @@
 import React from 'react'
 import ReactDOM from 'react-dom/client'
 import { RouterProvider, createRouter } from '@tanstack/react-router'
-
-// Importa nosso CSS global (que importa o Tailwind)
 import './index.css'
-
-// Importa a árvore de rotas que o TanStack gera automaticamente
 import { routeTree } from './routeTree.gen'
+import { AuthProvider } from './contexts/AuthContext'
 
 // Cria o roteador
 const router = createRouter({ routeTree })
@@ -24,7 +21,9 @@ if (!rootElement.innerHTML) {
   const root = ReactDOM.createRoot(rootElement)
   root.render(
     <React.StrictMode>
-      <RouterProvider router={router} />
+      <AuthProvider>
+        <RouterProvider router={router} />
+      </AuthProvider>
     </React.StrictMode>,
   )
 }
