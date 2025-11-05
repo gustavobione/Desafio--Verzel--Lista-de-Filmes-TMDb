@@ -12,7 +12,7 @@ A arquitetura é dividida em duas pastas principais:
 
 | Área | Tecnologia |
 | :--- | :--- |
-| **Frontend** | React, Vite, TypeScript, Tailwind CSS, Shadcn UI, TanStack Router, Axios |
+| **Frontend** | React, Vite, TypeScript, Tailwind CSS, Shadcn UI, TanStack Router, `fetch` |
 | **Backend** | Python, Django (4.2), Django REST Framework, `PyMySQL`, `django-cors-headers` |
 | **Autenticação** | Firebase Authentication (Login com Google), Firebase Admin SDK |
 | **Banco de Dados (Dev)**| MySQL (via XAMPP / MariaDB 10.4) |
@@ -21,45 +21,47 @@ A arquitetura é dividida em duas pastas principais:
 
 ---
 
-## 🚀 Status Atual do Projeto (04/11/2025)
+## 🚀 Status Atual do Projeto (05/11/2025)
 
-Esta seção resume o que foi feito até agora. O **Backend está 100% concluído (V1 e V2)**. O **Frontend tem seu "esqueleto"** de rotas definido.
+Esta seção resume o que foi feito até agora. O **Backend está 100% concluído (V1 e V2)**. O **Frontend está 90% concluído**, com todos os fluxos de usuário principais implementados.
 
 ### ✅ Concluído
 * **Setup do Ambiente:**
     * [X] Estrutura final do monorepo criada com pastas `Frontend/` e `Backend/`.
     * [X] Gerenciamento de segredos implementado via arquivos `.env` e `.env.example`.
-* **Frontend (`Frontend/`):**
-    * [X] Projeto criado com Vite + React + TS.
-    * [X] Dependências instaladas (Tailwind, Shadcn, Router, Axios, Firebase Client).
-    * [X] Configuração completa do Tailwind, Shadcn e Firebase (`firebase.ts`).
-    * [X] **Estrutura de Rotas:**
-        * [X] Configurado o **TanStack Router** (file-based routing).
-        * [X] Criado o "esqueleto" de todas as páginas necessárias (Home, Login, Favoritos, Share).
 * **Backend (`Backend/`):**
     * [X] Ambiente virtual (`venv`) e `requirements.txt` finalizados.
     * [X] Django 4.2 LTS e todas as dependências (DRF, PyMySQL, CORS, Firebase Admin) instalados.
     * [X] Conexão com banco MySQL (XAMPP/MariaDB) **100% funcional**.
     * [X] Painel de Admin (`/admin/`) acessível.
-    * [X] **API V1 (Lógica):**
-        * [X] Modelos (`User`, `FavoriteMovie`, `SharedList`) criados e migrados.
-        * [X] Endpoints V1 (CRUD de Favoritos, Links, Pesquisa TMDb) criados.
-        * [X] **TESTES (V1):** Todos os endpoints V1 validados com sucesso via Postman.
-    * [X] **API V2 (Segurança):**
-        * [X] Lógica de autenticação com Firebase Admin (`auth.py`) implementada.
-        * [X] Endpoints de `favorites` e `shared_lists` **travados** (requerem token `IsAuthenticated`).
-        * [X] Lógica das Views (`get_queryset`, `perform_create`) atualizada para filtrar dados por `request.user`.
-        * [X] **TESTES (V2):** Endpoints seguros testados no Postman, retornando `401 Unauthorized`.
+    * [X] **API V1 (Lógica):** Testada e funcional via Postman.
+    * [X] **API V2 (Segurança):** 100% concluída, segura e testada.
+* **Frontend (`Frontend/`):**
+    * [X] Projeto criado com Vite + React + TS.
+    * [X] Dependências instaladas (Tailwind, Shadcn, Router, Firebase Client).
+    * [X] Configuração completa do Tailwind, Shadcn e Firebase (`firebase.ts`).
+    * [X] **Estrutura de Rotas:**
+        * [X] Configurado o **TanStack Router** (file-based routing).
+        * [X] Criado o "esqueleto" de todas as páginas necessárias (Home, Login, Favoritos, Share).
+    * [X] **Lógica de Aplicação (Fluxos de Usuário):**
+        * [X] **Cliente de API (fetch):** Criado o `api.ts` (wrapper de `fetch`) que anexa tokens de autenticação automaticamente (substituindo o `axios`).
+        * [X] **Estado Global (AuthContext):** Criado o "sistema nervoso" para gerenciar o estado do usuário e dos favoritos.
+        * [X] **Fluxo de Autenticação:** Página de Login/Registro 100% funcional (Google e Email/Senha).
+        * [X] **Requisito #1 (Pesquisa):** Implementada a barra de pesquisa na Home, consumindo o backend.
+        * [X] **Requisito #3 & #5 (Favoritar):** Implementado o fluxo completo de favoritar/desfavoritar, com estado centralizado e feedback visual imediato.
+        * [X] **Rotas Protegidas:** Rota `/favoritos` agora redireciona usuários não logados com sucesso.
 
 ### 🚧 Próximos Passos
-1.  **Frontend (Desenvolvimento):**
-    * [ ] Criar um **Contexto/Estado Global** (AuthContext) para gerenciar o estado do usuário e o token.
-    * [ ] Implementar o fluxo de login com Google (componente de Login/Logout na página `/login`).
-    * [ ] Criar o `apiService` (com `axios`) para encapsular as chamadas de API (enviando o token).
-    * [ ] Proteger a rota `/favoritos` (redirecionar se não estiver logado).
-    * [ ] Desenvolver os componentes da UI (SearchBar, MovieCard, Layout).
-    * [ ] Conectar a UI com os endpoints do backend.
-2.  **Deploy (AWS):**
+1.  **Frontend (Features Finais):**
+    * [ ] **Requisito #6 (Compartilhar):**
+        * [ ] Adicionar um botão "Compartilhar" na página `/favoritos`.
+        * [ ] Esse botão deve chamar `api.post('/api/shared-lists/')` para criar um link.
+        * [ ] Implementar a lógica da página pública (`/share/$listId`) para buscar e exibir a lista (via um novo endpoint público no backend).
+2.  **Frontend (Refinamento/UI/UX):**
+    * [ ] Adicionar `Toast` (Shadcn) para feedback (ex: "Filme salvo!", "Erro ao logar").
+    * [ ] Adicionar `Spinners/Skeletons` (Shadcn) para os estados de `isLoading`.
+    * [ ] Criar um componente `Navbar` (no `__root.tsx`) com navegação (Home, Favoritos) e o status de login (Avatar/Botão de Sair).
+3.  **Deploy (AWS):**
     * [ ] Iniciar a configuração do RDS, S3 e Elastic Beanstalk.
 
 ---
@@ -100,7 +102,25 @@ Esta seção detalha o processo de pensamento e as decisões tomadas durante o d
     3.  Criei toda a **estrutura de rotas baseada em arquivos** (file-based routing) dentro de `src/routes/`.
     4.  Criei as rotas placeholder para o Layout Raiz (`__root.tsx`), Home (`index.tsx`), `login.tsx`, `favoritos.tsx` e a página dinâmica `share.$listId.tsx`.
     5.  Corrigi o `.gitignore` do frontend para ignorar o arquivo `routeTree.gen.ts` gerado.
-* **Resultado do Dia 2:** O **Backend V2 está 100% funcional e seguro.** O **Frontend tem seu "esqueleto" de rotas 100% funcional.** O projeto está agora pronto para a implementação da lógica de estado global (autenticação) no frontend.
+* **Resultado do Dia 2:** O **Backend V2 está 100% funcional e seguro.** O **Frontend tem seu "esqueleto" de rotas 100% funcional.**
+
+### Dia 3 (05/11/2025): Lógica do Frontend (Autenticação e Fluxo de Favoritos)
+
+* **O que fiz:** Foco total em implementar a lógica de interação do usuário no `Frontend/`, conectando todos os sistemas.
+* **Desafios Resolvidos (Frontend):**
+    1.  **Axios (Problema):** A dependência `axios` foi removida por preocupações com vulnerabilidades de segurança.
+    2.  **Axios (Solução):** Criei um *wrapper* de `fetch` (`api.ts`) que cumpre a mesma função (anexar tokens) sem dependências.
+    3.  **Arquitetura (Problema):** A lógica de favoritar não podia ficar em uma única página, pois precisava ser reutilizada (`/` e `/favoritos`).
+    4.  **Arquitetura (Solução):** Refatorei o `AuthContext` para ser o "cérebro" central, gerenciando o estado do `user` *e* dos `favorites` (buscados no login). As páginas (`index`, `favoritos`) se tornaram "smart" (consumindo o contexto) e o `MovieCard` se tornou "dumb" (recebendo props).
+    5.  **TypeScript (Problema):** A proteção de rota (`beforeLoad`) no TanStack Router causava um erro de build (`TS2339`) pois o `context.auth` ainda não estava injetado.
+    6.  **TypeScript (Solução):** Movi a lógica de proteção para dentro do componente (`useEffect`), que pode usar hooks (`useAuth`, `useNavigate`) e resolver o problema de build.
+* **Progresso do Código (Frontend):**
+    1.  **Estado Global:** `AuthContext` implementado com lógica de login/logout/favoritos.
+    2.  **Fluxo de Login:** Página de Login (Smart/Dumb) 100% funcional (Google e Email/Senha).
+    3.  **Fluxo de Pesquisa (Req #1):** `index.tsx` funcional, consumindo o `api.ts`.
+    4.  **Fluxo de Favoritos (Req #3, #5):** Lógica de *toggle* (favoritar/desfavoritar) implementada, com feedback visual no `MovieCard` e estado global.
+    5.  **Rotas Protegidas:** Rota `/favoritos` agora redireciona com sucesso.
+* **Resultado do Dia 3:** O **Frontend V1 está 90% completo**. Todos os fluxos de usuário principais (Login, Pesquisa, Favoritos) estão implementados e funcionais.
 
 ---
 
@@ -118,7 +138,7 @@ Esta seção detalha o processo de pensamento e as decisões tomadas durante o d
 1.  Clone o repositório:
     ```bash
     git clone [URL_DO_SEU_REPO]
-    cd [NOME_DO_PROJETO]
+    cd [NOME_DO_SEU_PROJETO]
     ```
 2.  Inicie o **MySQL** pelo painel do XAMPP.
 3.  Acesse o **MySQL Workbench** e crie o banco de dados (o nome deve bater com o `Backend/.env.example`):
