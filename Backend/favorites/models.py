@@ -11,6 +11,10 @@ class User(models.Model):
     name = models.CharField(max_length=255, blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
+    @property
+    def is_authenticated(self):
+        return True
+    
     def __str__(self):
         return self.email
 

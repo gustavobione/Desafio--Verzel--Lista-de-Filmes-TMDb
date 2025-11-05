@@ -1,42 +1,30 @@
+// Arquivo: Frontend/src/routes/index.tsx (Refatorado)
+
 import { createFileRoute } from '@tanstack/react-router'
 import { useState } from 'react'
-import { api } from '@/lib/api'
+import { api } from '@/lib/api' 
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { MovieCard, type Movie } from '@/components/MovieCard'
 
 export const Route = createFileRoute('/')({
   component: HomePage,
 })
 
-interface MovieResult {
-  id: number
-  title: string
-  poster_path: string
-  overview: string
-}
-
 function HomePage() {
   const [query, setQuery] = useState("")
-  const [results, setResults] = useState<MovieResult[]>([])
+  const [results, setResults] = useState<Movie[]>([])
   const [isLoading, setIsLoading] = useState(false)
 
   const handleSearch = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     if (!query) return
-    
     setIsLoading(true)
     try {
-      // A chamada da API é a mesma, mas agora usa 'fetch'
-      const response = await api.get('/search-tmdb/', {
-        query: query
-      })
-      
-      // 2. MUDANÇA: O 'response' já é o objeto 'data'
-      setResults(response.results) 
+      const response = await api.get(`/search-tmdb/?query=${query}`)
+      setResults(response.results)
     } catch (error) {
       console.error("Erro ao buscar filmes:", error)
-      // TODO: Mostrar um Toast de erro
     }
     setIsLoading(false)
   }
@@ -44,7 +32,7 @@ function HomePage() {
   return (
     <div className="container mx-auto">
       <h1 className="text-3xl font-bold mb-6">Busca de Filmes (TMDb)</h1>
-      
+
       <form onSubmit={handleSearch} className="flex gap-2 mb-8">
         <Input 
           type="text"
@@ -58,24 +46,10 @@ function HomePage() {
         </Button>
       </form>
 
-      {/* --- Exibição dos Resultados (sem mudanças) --- */}
+      {/* --- 3. Renderização Limpa --- */}
       <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4">
         {results.map((movie) => (
-          <Card key={movie.id}>
-            <CardHeader>
-              <CardTitle className="text-lg">{movie.title}</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <img 
-                src={`https://image.tmdb.org/t/p/w500${movie.poster_path}`} 
-                alt={movie.title}
-                className="rounded-md mb-4"
-              />
-              <p className="text-sm text-muted-foreground line-clamp-3">
-                {movie.overview}
-              </p>
-            </CardContent>
-          </Card>
+          <MovieCard key={movie.id} movie={movie} />
         ))}
       </div>
     </div>
