@@ -1,4 +1,5 @@
 import { createRootRoute, Outlet } from '@tanstack/react-router'
+import { Navbar } from '@/components/Navbar'
 
 // (Opcional, mas bom para o futuro)
 // Aqui você pode adicionar seu componente de Navbar
@@ -7,7 +8,8 @@ import { createRootRoute, Outlet } from '@tanstack/react-router'
 export const Route = createRootRoute({
   component: () => (
     <>
-      {/* <Navbar /> */}
+      <Navbar />
+
       <div className="p-4">
         <Outlet /> {/* As outras rotas serão renderizadas aqui */}
       </div>
