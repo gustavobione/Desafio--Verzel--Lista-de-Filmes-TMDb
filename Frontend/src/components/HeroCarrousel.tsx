@@ -25,7 +25,7 @@ export function HeroCarousel({ movies }: HeroCarouselProps) {
             <div className="relative h-[60vh] md:h-[80vh] w-full">
               {/* Imagem de Fundo */}
               <img
-                src={`https://image.tmdb.org/t/p/original${movie.poster_path}`}
+                src={`https://image.tmdb.org/t/p/original${movie.backdrop_path}`}
                 alt={movie.title}
                 className="w-full h-full object-cover brightness-50"
               />
