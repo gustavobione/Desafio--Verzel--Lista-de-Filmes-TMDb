@@ -11,6 +11,7 @@ from .views import (
     TMDbPopularAPIView,
     TMDbGenreListView,
     TMDbDiscoverAPIView,
+    TMDbMovieDetailView,
     )
 
 # O Router cria as URLs de CRUD (GET, POST, PUT, DELETE) para nós
@@ -35,4 +36,5 @@ urlpatterns = [
     path('tmdb/now-playing/', TMDbNowPlayingAPIView.as_view(), name='tmdb-now-playing'),
     path('tmdb/genres/', TMDbGenreListView.as_view(), name='tmdb-genres'),
     path('tmdb/discover/', TMDbDiscoverAPIView.as_view(), name='tmdb-discover'),
+    path('tmdb/movie/<int:movie_id>/', TMDbMovieDetailView.as_view(), name='tmdb-movie-detail'),
 ]

@@ -205,3 +205,24 @@ class TMDbDiscoverAPIView(views.APIView):
             
         except requests.RequestException as e:
             return response.Response({"error": f"Falha na API do TMDb: {e}"}, status=status.HTTP_503_SERVICE_UNAVAILABLE)
+        
+class TMDbMovieDetailView(views.APIView):
+    """
+    Busca os detalhes completos de UM filme, incluindo elenco e "onde assistir".
+    """
+    authentication_classes = []
+    permission_classes = []
+
+    def get(self, request, movie_id): # <-- Recebe o 'movie_id' da URL
+        api_key = settings.TMDB_API_KEY
+        
+        # Usamos 'append_to_response' para pegar tudo de uma vez
+        url = f"https://api.themoviedb.org/3/movie/{movie_id}?api_key={api_key}&language=pt-BR&append_to_response=credits,watch/providers"
+
+        try:
+            tmdb_response = requests.get(url)
+            tmdb_response.raise_for_status()
+            data = tmdb_response.json()
+            return response.Response(data, status=status.HTTP_200_OK)
+        except requests.RequestException as e:
+            return response.Response({"error": f"Filme não encontrado ou falha na API: {e}"}, status=status.HTTP_404_NOT_FOUND)
