@@ -1,92 +1,76 @@
 // Arquivo: Frontend/src/routes/index.tsx
-// (Página "SMART", mas com lógica centralizada)
+// (A nova Home Page "Smart", inspirada no LUMIÈRE)
 
-import { createFileRoute, useNavigate } from '@tanstack/react-router'
-import { useState } from 'react'
+import { createFileRoute } from '@tanstack/react-router'
 import { api } from '@/lib/api' 
-import { Input } from '@/components/ui/input'
-import { Button } from '@/components/ui/button'
-import { MovieCard, type Movie } from '@/components/MovieCard'
-import { useAuth } from '@/contexts/AuthContext' // <-- 1. Importa o "Cérebro"
+import type { Movie } from '@/components/MovieCard' // (Importa a interface)
+import { HeroCarousel } from '../components/HeroCarrousel'
+import { MovieCarousel } from '../components/MovieCarrousel'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 
+// 1. O 'loader' busca TODOS os dados da Home Page de uma vez
 export const Route = createFileRoute('/')({
+  loader: async () => {
+    try {
+      // Carrega os 3 endpoints em paralelo
+      const [popularRes, nowPlayingRes] = await Promise.all([
+        api.get('/tmdb/popular/'),
+        api.get('/tmdb/now-playing/')
+      ])
+      
+      return {
+        popular: popularRes.results as Movie[],
+        nowPlaying: nowPlayingRes.results as Movie[],
+      }
+    } catch (error) {
+      console.error("Erro ao carregar dados da Home:", error)
+      return { popular: [], nowPlaying: [] }
+    }
+  },
   component: HomePage,
 })
 
 function HomePage() {
-  // 2. Pega a lógica de favoritos do "Cérebro"
-  const { 
-    user, 
-    toggleFavorite, 
-    favoriteLookup, 
-    isFavLoading 
-  } = useAuth()
+  // 2. Pega os dados que o 'loader' buscou
+  const { popular, nowPlaying } = Route.useLoaderData()
+
+  // 3. Pega os 5 primeiros filmes "populares" para o Hero
+  const heroMovies = popular.slice(0, 5)
   
-  const navigate = useNavigate()
-
-  // Estados de pesquisa (continuam locais da página)
-  const [query, setQuery] = useState("")
-  const [searchResults, setSearchResults] = useState<Movie[]>([])
-  const [searchLoading, setSearchLoading] = useState(false)
-
-  const handleSearch = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault()
-    if (!query) return
-    setSearchLoading(true)
-    try {
-      const response = await api.get('/search-tmdb/', { query: query })
-      setSearchResults(response.results)
-    } catch (error) {
-      console.error("Erro ao buscar filmes:", error)
-    }
-    setSearchLoading(false)
-  }
-
-  // 3. O Handler de Toggle agora é SIMPLES
-  const handleToggle = (movie: Movie) => {
-    // Se não estiver logado, redireciona
-    if (!user) {
-      navigate({ to: '/login' })
-      return
-    }
-    // Se estiver logado, chama a função do "Cérebro"
-    toggleFavorite(movie)
-  }
-
   return (
-    <div className="container mx-auto">
-      <h1 className="text-3xl font-bold mb-6">Busca de Filmes (TMDb)</h1>
+    // Remove o 'container' daqui para o Hero pegar a tela cheia
+    <div className="flex flex-col gap-12">
       
-      <form onSubmit={handleSearch} className="flex gap-2 mb-8">
-        <Input 
-          type="text"
-          placeholder="Digite o nome de um filme..."
-          className="flex-grow"
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
-        />
-        <Button type="submit" disabled={searchLoading}>
-          {searchLoading ? "Buscando..." : "Buscar"}
-        </Button>
-      </form>
+      {/* --- 1. HERO CAROUSEL --- */}
+      <section className="-mx-4 -mt-4"> {/* Remove os paddings do 'main' */}
+        <HeroCarousel movies={heroMovies} />
+      </section>
 
-      {/* 4. Renderização passa as props do "Cérebro" */}
-      <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4">
-        {searchResults.map((movie) => {
-          // Checa o status no "mapa" vindo do "Cérebro"
-          const isFavorited = favoriteLookup.has(movie.id)
+      {/* --- 2. ABAS (Tabs) --- */}
+      <section className="container mx-auto">
+        <Tabs defaultValue="popular" className="w-full">
+          <TabsList>
+            <TabsTrigger value="popular">Filmes Populares</TabsTrigger>
+            <TabsTrigger value="now-playing">Filmes Novos (Em Cartaz)</TabsTrigger>
+          </TabsList>
           
-          return (
-            <MovieCard 
-              key={movie.id} 
-              movie={movie}
-              isFavorited={isFavorited}
-              onToggleFavorite={() => handleToggle(movie)} // Passa o handler simples
-              isLoading={isFavLoading} // Passa o loading global
-            />
-          )
-        })}
-      </div>
+          {/* Conteúdo da Aba 1 */}
+          <TabsContent value="popular" className="mt-4">
+            <MovieCarousel title="" movies={popular} />
+          </TabsContent>
+          
+          {/* Conteúdo da Aba 2 */}
+          <TabsContent value="now-playing" className="mt-4">
+            <MovieCarousel title="" movies={nowPlaying} />
+          </TabsContent>
+        </Tabs>
+      </section>
+
+      {/* (Aqui você pode adicionar mais MovieCarousels no futuro, 
+         ex: "Top Rated", "Upcoming", etc,
+         apenas adicionando mais endpoints no Backend e no loader)
+      */}
+      
     </div>
   )
 }
