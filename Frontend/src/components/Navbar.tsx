@@ -1,5 +1,5 @@
 // Arquivo: Frontend/src/components/Navbar.tsx
-// (Novo layout inspirado na imagem 'Navbar.png')
+// (Versão final refinada, inspirada no "LUMIÈRE")
 
 import * as React from "react"
 import { Link } from "@tanstack/react-router"
@@ -23,15 +23,14 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-// Novos ícones inspirados na imagem
-import { LogOut, Search, Moon, Sun } from "lucide-react"
+import { LogOut, User as UserIcon, Moon, Sun } from "lucide-react"
 
 // ######################################################################
-// COMPONENTE PARA O SELETOR DE TEMA (Inspirado na imagem)
-// (Idealmente, isso usaria 'useTheme' do 'next-themes')
+// COMPONENTE PARA O SELETOR DE TEMA
+// (Placeholder - como você forneceu)
 // ######################################################################
 function ThemeToggle() {
-  const [isDark, setIsDark] = React.useState(true) // Começa como escuro (como na imagem)
+  const [isDark, setIsDark] = React.useState(true) // Começa como escuro
   
   return (
     <Button 
@@ -54,8 +53,11 @@ function ThemeToggle() {
 export function Navbar() {
   const { user, logout, isLoading } = useAuth()
 
-  // (Funções handleLogout e getInitials - sem mudanças)
-  const handleLogout = async () => { await logout() }
+  const handleLogout = async () => {
+    await logout()
+  }
+
+  // (Usando sua lógica 'getInitials' mais robusta)
   const getInitials = () => {
     if (!user) return ""
     const source = user.displayName || user.email || ""
@@ -68,10 +70,8 @@ export function Navbar() {
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       
-      {/* Este é o layout de 3 colunas (grid) que corrige a centralização.
-        O 'px-4' ou 'px-6' no 'container' dá o "gap" lateral que você queria.
-      */}
-      <nav className="container max-w-full h-16 grid grid-cols-3 items-center px-[5%] md:px-[10%]">
+      {/* Layout de 3 colunas (Grid) com 'gap' lateral (px-4 ou px-6) */}
+      <nav className="container max-w-full h-16 grid grid-cols-3 items-center px-4 md:px-[10%]">
         
         {/* --- 1. SLOT ESQUERDO (Logo) --- */}
         <div className="justify-self-start">
@@ -81,20 +81,32 @@ export function Navbar() {
         </div>
 
         {/* --- 2. SLOT CENTRAL (Navegação Arredondada) --- */}
-        {/* Este é o menu centralizado, inspirado no "LUMIÈRE" */}
         <div className="justify-self-center">
-          {/* O 'div' externo cria o fundo arredondado */}
-          <div className="hidden md:flex items-center gap-1 rounded-full bg-muted/50 p-1 backdrop-blur-sm">
+          <div className="hidden md:flex items-center gap-4 rounded-md bg-muted/50 p-2">
             <NavigationMenu>
-              <NavigationMenuList>
+              <NavigationMenuList className="flex flex-row gap-2">
                 
+                {/* Link "Início" (para a Home /) */}
+                <NavigationMenuItem>
+                  <NavigationMenuLink asChild>
+                    <Link 
+                      to="/" 
+                      className={navigationMenuTriggerStyle()}
+                      // Destaque quando a rota é exatamente "/"
+                      activeProps={{ className: "bg-background shadow-sm" }}
+                      activeOptions={{ exact: true }}
+                    >
+                      Início
+                    </Link>
+                  </NavigationMenuLink>
+                </NavigationMenuItem>
+
+                {/* Link "Pesquisa" (para /pesquisa) */}
                 <NavigationMenuItem>
                   <NavigationMenuLink asChild>
                     <Link 
                       to="/pesquisa" 
-                      // O 'navigationMenuTriggerStyle()' dá o efeito de hover
                       className={navigationMenuTriggerStyle()}
-                      // 'activeProps' destaca o link da página atual
                       activeProps={{ className: "bg-background shadow-sm" }}
                     >
                       Pesquisa
@@ -102,7 +114,8 @@ export function Navbar() {
                   </NavigationMenuLink>
                 </NavigationMenuItem>
 
-                {user && ( // Só mostra "Meus Favoritos" se estiver logado
+                {/* Link "Meus Favoritos" (só para logados) */}
+                {user && (
                   <NavigationMenuItem>
                     <NavigationMenuLink asChild>
                       <Link 
@@ -121,15 +134,10 @@ export function Navbar() {
           </div>
         </div>
 
-        {/* --- 3. SLOT DIREITO (Ações: Busca, Tema, Auth) --- */}
+        {/* --- 3. SLOT DIREITO (Ações: Tema + Auth) --- */}
+        {/* (Removi o ícone de Busca daqui para limpar a UI) */}
         <div className="justify-self-end flex items-center gap-2">
           
-          {/* Botão de Busca (Ícone) */}
-          <Button variant="ghost" size="icon" aria-label="Buscar">
-            {/* TODO: Ligar este botão a um Dialog de Busca */}
-            <Search className="h-[1.2rem] w-[1.2rem] text-muted-foreground hover:text-primary" />
-          </Button>
-
           {/* Botão de Tema */}
           <ThemeToggle />
 
