@@ -91,7 +91,7 @@ export function Navbar() {
                 <NavigationMenuItem>
                   <NavigationMenuLink asChild>
                     <Link 
-                      to="/" 
+                      to="/pesquisa" 
                       // O 'navigationMenuTriggerStyle()' dá o efeito de hover
                       className={navigationMenuTriggerStyle()}
                       // 'activeProps' destaca o link da página atual
