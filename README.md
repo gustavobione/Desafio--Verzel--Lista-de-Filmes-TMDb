@@ -21,59 +21,55 @@ A arquitetura é dividida em duas pastas principais:
 
 ---
 
-## 🚀 Status Atual do Projeto (05/11/2025)
+## 🚀 Status Atual do Projeto (07/11/2025)
 
-Esta seção resume o que foi feito até agora. O **Backend está 100% concluído (V1 e V2)**. O **Frontend está 90% concluído**, com todos os fluxos de usuário principais implementados.
+Esta seção resume o que foi feito até agora. **Todos os 6 requisitos funcionais** do desafio estão implementados. O Backend está 100% concluído, e o Frontend está 95% concluído (faltando apenas polimento de UI).
 
 ### ✅ Concluído
 * **Setup do Ambiente:**
     * [X] Estrutura final do monorepo criada com pastas `Frontend/` e `Backend/`.
     * [X] Gerenciamento de segredos implementado via arquivos `.env` e `.env.example`.
 * **Backend (`Backend/`):**
-    * [X] Ambiente virtual (`venv`) e `requirements.txt` finalizados.
-    * [X] Django 4.2 LTS e todas as dependências (DRF, PyMySQL, CORS, Firebase Admin) instalados.
-    * [X] Conexão com banco MySQL (XAMPP/MariaDB) **100% funcional**.
-    * [X] Painel de Admin (`/admin/`) acessível.
     * [X] **API V1 (Lógica):** Testada e funcional via Postman.
     * [X] **API V2 (Segurança):** 100% concluída, segura e testada.
+    * [X] **API V3 (Features):** Todos os endpoints necessários para Home, Pesquisa, Detalhes e Compartilhamento foram criados e testados.
 * **Frontend (`Frontend/`):**
     * [X] Projeto criado com Vite + React + TS.
-    * [X] Dependências instaladas (Tailwind, Shadcn, Router, Firebase Client).
     * [X] Configuração completa do Tailwind, Shadcn e Firebase (`firebase.ts`).
     * [X] **Estrutura de Rotas:**
         * [X] Configurado o **TanStack Router** (file-based routing).
-        * [X] Criado o "esqueleto" de todas as páginas necessárias (Home, Login, Favoritos, Share).
+        * [X] Criado o "esqueleto" de todas as páginas necessárias.
     * [X] **Lógica de Aplicação (Fluxos de Usuário):**
-        * [X] **Cliente de API (fetch):** Criado o `api.ts` (wrapper de `fetch`) que anexa tokens de autenticação automaticamente (substituindo o `axios`).
         * [X] **Estado Global (AuthContext):** Criado o "sistema nervoso" para gerenciar o estado do usuário e dos favoritos.
-        * [X] **Fluxo de Autenticação:** Página de Login/Registro 100% funcional (Google e Email/Senha).
-        * [X] **Requisito #1 (Pesquisa):** Implementada a barra de pesquisa na Home, consumindo o backend.
-        * [X] **Requisito #3 & #5 (Favoritar):** Implementado o fluxo completo de favoritar/desfavoritar, com estado centralizado e feedback visual imediato.
-        * [X] **Rotas Protegidas:** Rota `/favoritos` agora redireciona usuários não logados com sucesso.
+        * [X] **Cliente de API (fetch):** Criado o `api.ts` (wrapper de `fetch`) que anexa tokens de autenticação automaticamente.
+        * [X] **Fluxo de Autenticação:** Página de Login/Registro 100% funcional.
+        * [X] **Requisito #1 (Pesquisa):** Implementada uma página `/pesquisa` dedicada com filtros responsivos (Sidebar/Sheet).
+        * [X] **Requisito #2 (Detalhes):** Implementada a página de detalhes do filme (`/filme/$movieId`) com Hero, Elenco e Metadados.
+        * [X] **Requisito #3 & #5 (Favoritar):** Implementado o fluxo completo de favoritar/desfavoritar, com estado centralizado.
+        * [X] **Requisito #4 (Gestão de API):** Todos os dados do TMDb são gerenciados e servidos pelo Backend.
+        * [X] **Requisito #6 (Compartilhar):** Implementado o fluxo de gerar link (`/favoritos`) e a página pública (`/share/$listId`).
+        * [X] **Rotas Protegidas:** Rota `/favoritos` redireciona usuários não logados com sucesso.
+        * [X] **UI Principal:** `Navbar` implementada com design "LUMIÈRE" (3 colunas) e lógica de autenticação.
 
 ### 🚧 Próximos Passos
-1.  **Frontend (Features Finais):**
-    * [ ] **Requisito #6 (Compartilhar):**
-        * [ ] Adicionar um botão "Compartilhar" na página `/favoritos`.
-        * [ ] Esse botão deve chamar `api.post('/api/shared-lists/')` para criar um link.
-        * [ ] Implementar a lógica da página pública (`/share/$listId`) para buscar e exibir a lista (via um novo endpoint público no backend).
-2.  **Frontend (Refinamento/UI/UX):**
-    * [ ] Adicionar `Toast` (Shadcn) para feedback (ex: "Filme salvo!", "Erro ao logar").
-    * [ ] Adicionar `Spinners/Skeletons` (Shadcn) para os estados de `isLoading`.
-    * [ ] Criar um componente `Navbar` (no `__root.tsx`) com navegação (Home, Favoritos) e o status de login (Avatar/Botão de Sair).
-3.  **Deploy (AWS):**
+1.  **Frontend (Refinamento/UI/UX):**
+    * [ ] Adicionar `Toast` (Shadcn) para feedback (ex: "Filme salvo!", "Erro ao logar", "Link copiado!").
+    * [ ] Adicionar `Spinners/Skeletons` (Shadcn) para os estados de `isLoading` (no `AuthContext`, `pesquisa.tsx`, etc.).
+    * [ ] Conectar o ícone de Lupa (`<Search />`) na Navbar para focar o input na página `/pesquisa`.
+2.  **Deploy (AWS):**
     * [ ] Iniciar a configuração do RDS, S3 e Elastic Beanstalk.
 
 ---
 
 ## 📓 Diário de Bordo & Decisões de Arquitetura
 
-Esta seção detalha o processo de pensamento e as decisões tomadas durante o desenvolvimento.
+* **Desafio Recebido:** Sexta-feira, 31 de Outubro de 2025, às 16:00.
+* **Pausa (Fim de Semana):** 01/11 - 02/11.
 
 ### Dia 1 (03/11/2025): Setup e Pivô Estratégico
 
 * **O que fiz:** Iniciei o desafio com a stack sugerida (React, Node.js, Vercel Postgres), mas enfrentei diversos atritos de plataforma (erros de `npm` no Windows, complexidade do Prisma/Vercel).
-* **Decisão (O Pivô):** Percebi que gastar mais tempo lutando contra a configuração de ferramentas que não domino seria um risco para o prazo de 4-7 dias. Decidi **pivotar a stack** para uma arquitetura que domino, que é mais robusta e com a qual já tenho experiência de deploy (AWS): **React + Django + MySQL**.
+* **Decisão (O Pivô):** Decidi **pivotar a stack** para uma arquitetura que domino, que é mais robusta e com a qual já tenho experiência de deploy (AWS): **React + Django + MySQL**.
 * **Resultado do Dia 1:** Estrutura de monorepo (`Frontend/` e `Backend/`) criada. Ambiente do `Frontend/` (Vite, TS, Tailwind, Shadcn, Firebase) 100% configurado. Base do `Backend/` (Django, `venv`) instalada.
 
 ### Dia 2 (04/11/2025): Construção Full-Stack (Backend Seguro e Frontend Routing)
@@ -122,6 +118,25 @@ Esta seção detalha o processo de pensamento e as decisões tomadas durante o d
     5.  **Rotas Protegidas:** Rota `/favoritos` agora redireciona com sucesso.
 * **Resultado do Dia 3:** O **Frontend V1 está 90% completo**. Todos os fluxos de usuário principais (Login, Pesquisa, Favoritos) estão implementados e funcionais.
 
+### Pausa (06/11/2025)
+
+* Dia focado em outros projetos acadêmicos e descanso.
+
+### Dia 4 (07/11/2025): Conclusão das Features (Req. #2, #6) e Refinamento de UI
+
+* **O que fiz:** Implementei os requisitos funcionais restantes e refinei a UI principal.
+* **Progresso do Código (Backend):**
+    1.  **Req #6 (Share):** Criei a `PublicSharedListAPIView` (e a URL `/api/public-list/<id>`) para permitir que listas sejam visualizadas publicamente, sem token.
+    2.  **Req #2 (Detalhes):** Criei a `TMDbMovieDetailView` (e a URL `/api/tmdb/movie/<id>/`) usando `append_to_response=credits,watch/providers` para buscar todos os dados do filme de uma só vez.
+    3.  **Req #1 (Pesquisa):** Criei a `TMDbDiscoverAPIView` (e URL) para permitir buscas filtradas (gênero, ano, nota).
+* **Progresso do Código (Frontend):**
+    1.  **Req #6 (Share):** Implementei o fluxo de "Compartilhar" na página `/favoritos` (chama `api.post`) e a página `/share/$listId` (chama `api.get` público), reutilizando o `MovieCard` em modo "read-only".
+    2.  **Req #1 (Pesquisa):** Criei a nova página `/pesquisa` com layout responsivo (Sidebar fixo no desktop, `Sheet` no mobile) e filtros (gênero, ano, nota, etc.) que consomem a API `discover`.
+    3.  **Req #2 (Detalhes):** Criei a nova página `/filme/$movieId`, tornando o `MovieCard` um link. A página usa o `loader` do roteador para buscar os dados e os exibe em componentes "burros" (`HeroHeader`, `CastCarousel`, `MetadataSidebar`) inspirados no design do "LUMIÈRE".
+    4.  **UI (Navbar):** Refinei o `Navbar.tsx` para o design "LUMIÈRE" final, com menu central arredondado (`NavigationMenu`), links para "Início" e "Pesquisa", e `activeProps` para destacar a rota ativa.
+
+* **Resultado do Dia 4:** **Todos os 6 requisitos funcionais do desafio estão concluídos.** O Backend foi expandido para suportar todas as features do frontend. O Frontend agora tem todas as páginas e lógicas implementadas. O projeto está pronto para o polimento final da UI (Toasts/Spinners) e deploy.
+
 ---
 
 ## ⚙️ Como Configurar e Rodar
@@ -138,7 +153,7 @@ Esta seção detalha o processo de pensamento e as decisões tomadas durante o d
 1.  Clone o repositório:
     ```bash
     git clone [URL_DO_SEU_REPO]
-    cd [NOME_DO_SEU_PROJETO]
+    cd [NOME_DO_PROJETO]
     ```
 2.  Inicie o **MySQL** pelo painel do XAMPP.
 3.  Acesse o **MySQL Workbench** e crie o banco de dados (o nome deve bater com o `Backend/.env.example`):
