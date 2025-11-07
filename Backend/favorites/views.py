@@ -7,6 +7,7 @@ import requests
 from django.conf import settings  # Para pegar a chave da API
 from rest_framework.permissions import IsAuthenticated
 from .auth import FirebaseAuthentication
+from rest_framework import generics
 
 
 # --- API de CRUD para Filmes Favoritos ---
@@ -73,4 +74,36 @@ class TMDbSearchAPIView(views.APIView):
             return response.Response(
                 {"error": f"Falha ao contatar API do TMDb: {e}"},
                 status=status.HTTP_503_SERVICE_UNAVAILABLE,
+            )
+        
+class PublicSharedListAPIView(generics.RetrieveAPIView):
+        # 1. Não requer autenticação
+    authentication_classes = []
+    permission_classes = []
+        
+    queryset = SharedList.objects.all()
+    serializer_class = SharedListSerializer  # (Usado apenas para pegar o ID da lista)
+    
+        # 2. Esta é a lógica principal
+    def retrieve(self, request, *args, **kwargs):
+        try:
+                # 3. Pega a 'SharedList' pelo ID (pk) da URL
+            shared_list_instance = self.get_object()
+                
+                # 4. Encontra o usuário que é o "dono" dessa lista
+            user_of_list = shared_list_instance.user
+                
+                # 5. Busca TODOS os 'FavoriteMovie' daquele usuário
+            favorites = FavoriteMovie.objects.filter(user=user_of_list)
+                
+                # 6. Serializa (converte para JSON) a lista de filmes
+            serializer = FavoriteMovieSerializer(favorites, many=True)
+                
+                # 7. Retorna a lista de filmes para o frontend
+            return response.Response(serializer.data, status=status.HTTP_200_OK)
+                
+        except Exception:
+            return response.Response(
+                {"error": "Lista não encontrada."},
+                status=status.HTTP_404_NOT_FOUND
             )
