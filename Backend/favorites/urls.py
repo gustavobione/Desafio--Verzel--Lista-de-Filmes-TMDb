@@ -2,7 +2,14 @@
 
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
-from .views import FavoriteMovieViewSet, SharedListViewSet, TMDbSearchAPIView, PublicSharedListAPIView
+from .views import (
+    FavoriteMovieViewSet, 
+    SharedListViewSet, 
+    TMDbSearchAPIView, 
+    PublicSharedListAPIView, 
+    TMDbNowPlayingAPIView, 
+    TMDbPopularAPIView
+    )
 
 # O Router cria as URLs de CRUD (GET, POST, PUT, DELETE) para nós
 router = DefaultRouter()
@@ -22,4 +29,6 @@ urlpatterns = [
         PublicSharedListAPIView.as_view(), 
         name='public-shared-list'
     ),
+    path('tmdb/popular/', TMDbPopularAPIView.as_view(), name='tmdb-popular'),
+    path('tmdb/now-playing/', TMDbNowPlayingAPIView.as_view(), name='tmdb-now-playing'),
 ]

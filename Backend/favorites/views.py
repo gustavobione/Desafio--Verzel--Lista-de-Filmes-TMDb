@@ -107,3 +107,39 @@ class PublicSharedListAPIView(generics.RetrieveAPIView):
                 {"error": "Lista não encontrada."},
                 status=status.HTTP_404_NOT_FOUND
             )
+
+class TMDbPopularAPIView(views.APIView):
+    """
+    Busca os filmes populares no TMDb.
+    """
+    authentication_classes = []
+    permission_classes = []
+
+    def get(self, request):
+        api_key = settings.TMDB_API_KEY
+        url = f"https://api.themoviedb.org/3/movie/popular?api_key={api_key}&language=pt-BR&page=1"
+        try:
+            tmdb_response = requests.get(url)
+            tmdb_response.raise_for_status()
+            data = tmdb_response.json()
+            return response.Response(data, status=status.HTTP_200_OK)
+        except requests.RequestException as e:
+            return response.Response({"error": f"Falha na API do TMDb: {e}"}, status=status.HTTP_503_SERVICE_UNAVAILABLE)
+
+class TMDbNowPlayingAPIView(views.APIView):
+    """
+    Busca os filmes "em cartaz agora" (Novos) no TMDb.
+    """
+    authentication_classes = []
+    permission_classes = []
+
+    def get(self, request):
+        api_key = settings.TMDB_API_KEY
+        url = f"https://api.themoviedb.org/3/movie/now_playing?api_key={api_key}&language=pt-BR&page=1"
+        try:
+            tmdb_response = requests.get(url)
+            tmdb_response.raise_for_status()
+            data = tmdb_response.json()
+            return response.Response(data, status=status.HTTP_200_OK)
+        except requests.RequestException as e:
+            return response.Response({"error": f"Falha na API do TMDb: {e}"}, status=status.HTTP_503_SERVICE_UNAVAILABLE)
