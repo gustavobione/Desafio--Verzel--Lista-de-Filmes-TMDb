@@ -143,3 +143,65 @@ class TMDbNowPlayingAPIView(views.APIView):
             return response.Response(data, status=status.HTTP_200_OK)
         except requests.RequestException as e:
             return response.Response({"error": f"Falha na API do TMDb: {e}"}, status=status.HTTP_503_SERVICE_UNAVAILABLE)
+        
+class TMDbGenreListView(views.APIView):
+    """
+    Busca a lista oficial de gêneros do TMDb.
+    """
+    authentication_classes = []
+    permission_classes = []
+
+    def get(self, request):
+        api_key = settings.TMDB_API_KEY
+        url = f"https://api.themoviedb.org/3/genre/movie/list?api_key={api_key}&language=pt-BR"
+        try:
+            tmdb_response = requests.get(url)
+            tmdb_response.raise_for_status()
+            data = tmdb_response.json()
+            return response.Response(data, status=status.HTTP_200_OK)
+        except requests.RequestException as e:
+            return response.Response({"error": f"Falha na API do TMDb: {e}"}, status=status.HTTP_503_SERVICE_UNAVAILABLE)
+
+class TMDbDiscoverAPIView(views.APIView):
+    """
+    Busca filmes baseada em filtros (gênero, ano, nota, etc.)
+    ou pesquisa por 'query' (nome).
+    """
+    authentication_classes = []
+    permission_classes = []
+
+    def get(self, request):
+        api_key = settings.TMDB_API_KEY
+        base_url = "https://api.themoviedb.org/3"
+        
+        # Pega todos os filtros da URL (ex: ?page=1&with_genres=28)
+        query = request.query_params.get('query', None)
+        page = request.query_params.get('page', '1')
+        sort_by = request.query_params.get('sort_by', 'popularity.desc')
+        with_genres = request.query_params.get('with_genres', None)
+        primary_release_year = request.query_params.get('primary_release_year', None)
+        vote_average_gte = request.query_params.get('vote_average.gte', None) # Maior ou igual
+
+        try:
+            if query:
+                # Se o usuário digitou um nome, usamos a API de "search"
+                endpoint = f"/search/movie?query={query}&page={page}"
+            else:
+                # Se o usuário está filtrando, usamos a API "discover"
+                endpoint = f"/discover/movie?page={page}&sort_by={sort_by}"
+                if with_genres:
+                    endpoint += f"&with_genres={with_genres}"
+                if primary_release_year:
+                    endpoint += f"&primary_release_year={primary_release_year}"
+                if vote_average_gte:
+                    endpoint += f"&vote_average.gte={vote_average_gte}"
+
+            url = f"{base_url}{endpoint}&api_key={api_key}&language=pt-BR"
+            
+            tmdb_response = requests.get(url)
+            tmdb_response.raise_for_status()
+            data = tmdb_response.json()
+            return response.Response(data, status=status.HTTP_200_OK)
+            
+        except requests.RequestException as e:
+            return response.Response({"error": f"Falha na API do TMDb: {e}"}, status=status.HTTP_503_SERVICE_UNAVAILABLE)
