@@ -93,7 +93,7 @@ function FavoritosPage() {
       {favorites.length === 0 ? (
         <p>Você ainda não salvou nenhum filme.</p>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-6 gap-4">
           {favorites.map((fav) => {
             const movie: Movie = {
               id: fav.tmdb_id,
@@ -110,6 +110,7 @@ function FavoritosPage() {
                 isFavorited={favoriteLookup.has(movie.id)}
                 onToggleFavorite={() => toggleFavorite(movie)}
                 isLoading={isFavLoading}
+                
               />
             )
           })}

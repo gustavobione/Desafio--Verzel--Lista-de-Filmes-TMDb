@@ -23,7 +23,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { LogOut, User as UserIcon, Moon, Sun } from "lucide-react"
+import { LogOut, Moon, Sun } from "lucide-react"
 
 // ######################################################################
 // COMPONENTE PARA O SELETOR DE TEMA
@@ -71,7 +71,7 @@ export function Navbar() {
     <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       
       {/* Layout de 3 colunas (Grid) com 'gap' lateral (px-4 ou px-6) */}
-      <nav className="container max-w-full h-16 grid grid-cols-3 items-center px-4 md:px-[10%]">
+      <nav className="container max-w-full h-16 grid grid-cols-3 items-center px-[5%] md:px-[10%]">
         
         {/* --- 1. SLOT ESQUERDO (Logo) --- */}
         <div className="justify-self-start">
