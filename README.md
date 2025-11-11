@@ -21,7 +21,7 @@ A arquitetura é dividida em duas pastas principais:
 
 ---
 
-## 🚀 Status Atual do Projeto (07/11/2025)
+## 🚀 Status Atual do Projeto (10/11/2025)
 
 Esta seção resume o que foi feito até agora. **Todos os 6 requisitos funcionais** do desafio estão implementados. O Backend está 100% concluído, e o Frontend está 95% concluído (faltando apenas polimento de UI).
 
@@ -40,22 +40,28 @@ Esta seção resume o que foi feito até agora. **Todos os 6 requisitos funciona
         * [X] Configurado o **TanStack Router** (file-based routing).
         * [X] Criado o "esqueleto" de todas as páginas necessárias.
     * [X] **Lógica de Aplicação (Fluxos de Usuário):**
+        * [X] **Cliente de API (fetch):** Criado o `api.ts` (wrapper de `fetch`) que anexa tokens de autenticação automaticamente (substituindo o `axios`).
         * [X] **Estado Global (AuthContext):** Criado o "sistema nervoso" para gerenciar o estado do usuário e dos favoritos.
-        * [X] **Cliente de API (fetch):** Criado o `api.ts` (wrapper de `fetch`) que anexa tokens de autenticação automaticamente.
-        * [X] **Fluxo de Autenticação:** Página de Login/Registro 100% funcional.
-        * [X] **Requisito #1 (Pesquisa):** Implementada uma página `/pesquisa` dedicada com filtros responsivos (Sidebar/Sheet).
-        * [X] **Requisito #2 (Detalhes):** Implementada a página de detalhes do filme (`/filme/$movieId`) com Hero, Elenco e Metadados.
-        * [X] **Requisito #3 & #5 (Favoritar):** Implementado o fluxo completo de favoritar/desfavoritar, com estado centralizado.
+        * [X] **Fluxo de Autenticação:** Página de Login/Registro 100% funcional (com design "LUMIÈRE").
+        * [X] **Requisito #1 (Pesquisa):** Implementada uma página `/pesquisa` dedicada com filtros responsivos (Sidebar/Sheet) e busca "em tempo real" (debounce).
+        * [X] **Requisito #2 (Detalhes):** Implementada a página de detalhes do filme (`/filme/$movieId`) com Hero, Elenco e Metadados (design "LUMIÈRE").
+        * [X] **Requisito #3 & #5 (Favoritar):** Implementado o fluxo completo de favoritar/desfavoritar, com estado centralizado e feedback visual imediato.
         * [X] **Requisito #4 (Gestão de API):** Todos os dados do TMDb são gerenciados e servidos pelo Backend.
         * [X] **Requisito #6 (Compartilhar):** Implementado o fluxo de gerar link (`/favoritos`) e a página pública (`/share/$listId`).
         * [X] **Rotas Protegidas:** Rota `/favoritos` redireciona usuários não logados com sucesso.
-        * [X] **UI Principal:** `Navbar` implementada com design "LUMIÈRE" (3 colunas) e lógica de autenticação.
+    * [X] **UI Principal:**
+        * [X] `Navbar` implementada com design "LUMIÈRE" (3 colunas) e lógica de autenticação.
+        * [X] `Footer` criado e implementado no layout raiz.
+        * [X] `MovieCard` refatorado para o design "TMDb" (foco na imagem, nota e favorito flutuantes).
+        * [X] `index.tsx` (Home Page) refatorada para o design "LUMIÈRE" (Hero, Top 10, CTAs, Abas com Carrosséis).
 
 ### 🚧 Próximos Passos
-1.  **Frontend (Refinamento/UI/UX):**
+1.  **Frontend (Refinamento/Polimento):**
     * [ ] Adicionar `Toast` (Shadcn) para feedback (ex: "Filme salvo!", "Erro ao logar", "Link copiado!").
     * [ ] Adicionar `Spinners/Skeletons` (Shadcn) para os estados de `isLoading` (no `AuthContext`, `pesquisa.tsx`, etc.).
-    * [ ] Conectar o ícone de Lupa (`<Search />`) na Navbar para focar o input na página `/pesquisa`.
+    * [ ] **Melhoria (Pesquisa):** Refinar o feedback de "Nenhum resultado encontrado" e o estado de `isLoading` (Skeleton).
+    * [ ] **Melhoria (Favoritos):** Adicionar botões de ação na página (ex: "Gerar Link de Partilha" que agora está no CTA).
+    * [ ] **Melhoria (Detalhes):** Adicionar links/botões para "Trailer" (se disponível) e "Homepage" do filme.
 2.  **Deploy (AWS):**
     * [ ] Iniciar a configuração do RDS, S3 e Elastic Beanstalk.
 
@@ -134,8 +140,22 @@ Esta seção resume o que foi feito até agora. **Todos os 6 requisitos funciona
     2.  **Req #1 (Pesquisa):** Criei a nova página `/pesquisa` com layout responsivo (Sidebar fixo no desktop, `Sheet` no mobile) e filtros (gênero, ano, nota, etc.) que consomem a API `discover`.
     3.  **Req #2 (Detalhes):** Criei a nova página `/filme/$movieId`, tornando o `MovieCard` um link. A página usa o `loader` do roteador para buscar os dados e os exibe em componentes "burros" (`HeroHeader`, `CastCarousel`, `MetadataSidebar`) inspirados no design do "LUMIÈRE".
     4.  **UI (Navbar):** Refinei o `Navbar.tsx` para o design "LUMIÈRE" final, com menu central arredondado (`NavigationMenu`), links para "Início" e "Pesquisa", e `activeProps` para destacar a rota ativa.
+* **Resultado do Dia 4:** **Todos os 6 requisitos funcionais do desafio estão concluídos.**
 
-* **Resultado do Dia 4:** **Todos os 6 requisitos funcionais do desafio estão concluídos.** O Backend foi expandido para suportar todas as features do frontend. O Frontend agora tem todas as páginas e lógicas implementadas. O projeto está pronto para o polimento final da UI (Toasts/Spinners) e deploy.
+### Pausa (08/11/2025 - 09/11/2025)
+* Fim de semana (descanso e outros projetos acadêmicos).
+
+### Dia 5 (10/11/2025): Refatoração da UI (Home Page e Cards)
+* **O que fiz:** Foco total em refinar a interface do usuário (UI) para alinhá-la com a inspiração de design "LUMIÈRE" e "TMDb".
+* **Desafios Resolvidos (Frontend):**
+    1.  **UI (Home Page):** A Home Page (`index.tsx`) foi completamente reconstruída. O `loader` foi atualizado para buscar todos os endpoints de descoberta (Populares, Novos, Em Breve, etc.) de uma vez. O layout foi refeito com a hierarquia correta: 1) Hero Carousel, 2) Top 10 (como carrossel estilo Netflix), 3) CTAs (em grid de 3 colunas), 4) Abas (com `MovieCarousel` internos para cada categoria).
+    2.  **UI (MovieCard):** O `MovieCard` foi refatorado para o design "TMDb", focado na imagem. O `<Card>` do Shadcn foi removido; o botão "Favoritar" tornou-se um ícone flutuante e a nota tornou-se um `RatingCircle` sobreposto. O título agora usa `Tooltip` para o "efeito de letreiro".
+* **Progresso do Código (Frontend):**
+    1.  `index.tsx` refatorado para o novo layout de descoberta.
+    2.  `MovieCard.tsx` refatorado para o novo design focado em imagem.
+    3.  `Top10List.tsx` criado para o carrossel "Top 10" (estilo Netflix).
+    4.  `CallToAction.tsx` e `Footer.tsx` criados e adicionados ao `__root.tsx`.
+* **Resultado do Dia 5:** A aplicação está com a UI/UX 90% completa, alinhada com a visão de design. O projeto está pronto para o polimento final (Toasts/Spinners) e as melhorias finais nas features.
 
 ---
 
