@@ -10,6 +10,7 @@ import { CallToAction } from '@/components/CallToAction'
 import { Top10List } from '@/components/Top10List'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { MovieCarousel } from '@/components/MovieCarrousel'
+import { Search, Heart, Share2 } from "lucide-react"
 
 // 1. O 'loader' busca TODOS os dados da Home Page de uma vez
 export const Route = createFileRoute('/')({
@@ -54,7 +55,7 @@ export const Route = createFileRoute('/')({
 function HomePage() {
   // 2. Pega os dados que o 'loader' buscou
   const { popular, nowPlaying, trendingWeek, topRated, upcoming } = Route.useLoaderData()
-  
+
   // 3. Pega os 5 primeiros filmes "populares" para o Hero
   const heroMovies = trendingWeek.slice(0, 5)
 
@@ -76,22 +77,25 @@ function HomePage() {
         {/* --- 3. SEÇÃO DE CTAs (Sempre visível) --- */}
         <section className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <CallToAction
+            icon={Search}
             title="Explore o Catálogo"
             description="Use nossos filtros avançados para encontrar exatamente o que você procura."
             buttonText="Ir para a Pesquisa"
             linkTo="/pesquisa"
           />
           <CallToAction
-            title="Sua Lista de Favoritos"
-            description="Acesse sua lista de filmes salvos e compartilhe com seus amigos."
+            icon={Heart}
+            title="Sua Lista Pessoal"
+            description="Acesse sua coleção de filmes salvos. Perfeito para organizar o que você ama."
             buttonText="Ver Meus Favoritos"
             linkTo="/favoritos"
           />
           <CallToAction
-            title="Compartilhe seu Gosto"
-            description="Crie um link único da sua lista de favoritos para enviar aos seus amigos."
-            buttonText="Gerar Link de Partilha"
-            linkTo="/favoritos" // O botão está na página de favoritos
+            icon={Share2}
+            title="Mostre seu Gosto"
+            description="Gere um link público da sua lista para mostrar seu incrível repertório de filmes."
+            buttonText="Compartilhar Lista"
+            linkTo="/favoritos" // (O botão de gerar link está na pág. de favoritos)
           />
         </section>
 
@@ -106,12 +110,12 @@ function HomePage() {
 
             {/* Conteúdo: Populares */}
             <TabsContent value="popular" className="mt-6">
-              <MovieGrid 
-                movies={popular} 
-                viewMoreLink="/pesquisa?sort_by=popularity.desc" 
+              <MovieGrid
+                movies={popular}
+                viewMoreLink="/pesquisa?sort_by=popularity.desc"
               />
             </TabsContent>
-            
+
             {/* Conteúdo: Novos */}
             <TabsContent value="now-playing" className="mt-6">
               <MovieCarousel
@@ -122,7 +126,7 @@ function HomePage() {
 
             {/* Conteúdo: Melhor Nota */}
             <TabsContent value="top-rated" className="mt-6">
-              <MovieGrid 
+              <MovieGrid
                 movies={topRated}
                 viewMoreLink="/pesquisa?sort_by=vote_average.desc"
               />
@@ -130,7 +134,7 @@ function HomePage() {
 
             {/* Conteúdo: Lançando em Breve */}
             <TabsContent value="upcoming" className="mt-6">
-              <MovieGrid 
+              <MovieGrid
                 movies={upcoming}
               />
             </TabsContent>
