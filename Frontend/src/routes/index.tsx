@@ -118,9 +118,9 @@ function HomePage() {
 
             {/* Conteúdo: Novos */}
             <TabsContent value="now-playing" className="mt-6">
-              <MovieCarousel
-                title=''
+              <MovieGrid
                 movies={nowPlaying}
+                viewMoreLink="/pesquisa?sort_by=trending.desc"
               />
             </TabsContent>
 
