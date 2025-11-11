@@ -281,3 +281,37 @@ class TMDbUpcomingAPIView(views.APIView):
             return response.Response(data, status=status.HTTP_200_OK)
         except requests.RequestException as e:
             return response.Response({"error": f"Falha na API do TMDb: {e}"}, status=status.HTTP_503_SERVICE_UNAVAILABLE)
+        
+class TMDbMovieVideosView(views.APIView):
+    """
+    Busca os vídeos (trailers) de um filme específico.
+    """
+    authentication_classes = []
+    permission_classes = []
+
+    def get(self, request, movie_id):
+        api_key = settings.TMDB_API_KEY
+        url = f"https://api.themoviedb.org/3/movie/{movie_id}/videos?api_key={api_key}&language=pt-BR"
+        
+        try:
+            tmdb_response = requests.get(url)
+            tmdb_response.raise_for_status()
+            data = tmdb_response.json()
+            
+            # Tenta encontrar o "Trailer Oficial"
+            official_trailer = None
+            for video in data.get('results', []):
+                if video['type'] == 'Trailer' and video['official']:
+                    official_trailer = video
+                    break
+            
+            # Se não achar, pega o primeiro trailer qualquer
+            if not official_trailer:
+                for video in data.get('results', []):
+                    if video['type'] == 'Trailer':
+                        official_trailer = video
+                        break
+
+            return response.Response(official_trailer, status=status.HTTP_200_OK)
+        except requests.RequestException as e:
+            return response.Response({"error": f"Falha na API do TMDb: {e}"}, status=status.HTTP_503_SERVICE_UNAVAILABLE)
