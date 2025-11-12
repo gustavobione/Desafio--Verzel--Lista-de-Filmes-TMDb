@@ -87,7 +87,7 @@ export function TrailerDialog({ movieId, movieTitle }: TrailerDialogProps) {
             ></iframe>
           )}
           {!isLoading && !videoKey && (
-            <p className="text-center p-8">Trailer não disponível.</p>
+            <p className="flex-grow w-full h-full flex items-center justify-center">Trailer não disponível.</p>
           )}
         </div>
       </DialogContent>
