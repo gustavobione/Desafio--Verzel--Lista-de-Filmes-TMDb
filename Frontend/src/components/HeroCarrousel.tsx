@@ -11,10 +11,10 @@ import {
   CarouselNext,
   CarouselPrevious,
 } from "@/components/ui/carousel"
-import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { TrailerDialog } from "./TrailerDialog" // <-- 2. Importa o Modal do Trailer
 import { Heart } from "lucide-react"
+import { RatingBadge } from "./RaitingBadge"
 
 interface HeroCarouselProps {
   movies: Movie[]
@@ -33,9 +33,9 @@ export function HeroCarousel({ movies }: HeroCarouselProps) {
     }
     toggleFavorite(movie)
   }
-  
+
   return (
-    <Carousel 
+    <Carousel
       className="w-full -mt-4" // -mt-4 para "puxar" para baixo do header
       opts={{ loop: true }}
     >
@@ -43,7 +43,7 @@ export function HeroCarousel({ movies }: HeroCarouselProps) {
         {movies.map((movie) => {
           // 5. Checa se este filme é favorito (lógica "smart")
           const isFavorited = favoriteLookup.has(movie.id)
-          
+
           return (
             <CarouselItem key={movie.id}>
               <div className="relative h-[60vh] md:h-[80vh] w-full">
@@ -55,27 +55,33 @@ export function HeroCarousel({ movies }: HeroCarouselProps) {
                 />
                 {/* Overlay de Gradiente */}
                 <div className="absolute inset-0 bg-gradient-to-t from-background via-transparent to-transparent"></div>
-                
+
                 {/* Conteúdo */}
                 <div className="absolute bottom-0 left-0 p-8 md:p-16 text-white">
                   <h1 className="text-4xl md:text-6xl font-bold max-w-2xl">
                     {movie.title}
                   </h1>
                   <div className="flex items-center gap-4 mt-4">
-                    <Badge variant="destructive" className="text-lg">
-                      {Math.round((movie.vote_average || 0) * 10)}%
-                    </Badge>
-                    <span className="text-lg">
+                    {/* --- O CÍRCULO DE NOTA ATUALIZADO --- */}
+                    {/* (Usamos 'relative' no 'div' pai e 'absolute' no filho 
+                  para que ele não afete o alinhamento do ano) */}
+
+                      {/* --- O NOVO BADGE DE NOTA (Retangular) --- */}
+                      <RatingBadge
+                        rating={Math.round((movie.vote_average || 0) * 10)}
+                      />
+                    {/* (Adicionamos um 'ml-2' para dar espaço após o círculo) */}
+                    <span className="text-lg font-semibold ml-2">
                       {new Date(movie.release_date ?? new Date()).getFullYear()}
                     </span>
                   </div>
                   <p className="mt-4 max-w-2xl text-lg text-gray-300 line-clamp-3">
                     {movie.overview}
                   </p>
-                  
+
                   {/* --- 6. BOTÕES DE AÇÃO ATUALIZADOS --- */}
                   <div className="flex flex-wrap items-center gap-2 mt-6">
-                    
+
                     {/* Botão "Assistir Trailer" (abre o modal) */}
                     <TrailerDialog movieId={movie.id} movieTitle={movie.title} />
 
@@ -85,23 +91,23 @@ export function HeroCarousel({ movies }: HeroCarouselProps) {
                         Ver Detalhes
                       </Link>
                     </Button>
-                    
+
                     {/* Botão "Favoritar" (lógica 'toggle') */}
-                    <Button 
-                      size="lg" 
-                      variant={isFavorited ? "default" : "outline"} 
+                    <Button
+                      size="lg"
+                      variant={isFavorited ? "default" : "outline"}
                       onClick={() => handleToggle(movie)}
                       disabled={isFavLoading}
                       className="bg-transparent border-white/50 text-white hover:bg-white/10 hover:text-white"
                     >
-                      <Heart 
-                        className="mr-2 h-4 w-4" 
-                        fill={isFavorited ? "currentColor" : "none"} 
+                      <Heart
+                        className="mr-2 h-4 w-4"
+                        fill={isFavorited ? "currentColor" : "none"}
                       />
                       {isFavLoading ? "Salvando..." : (isFavorited ? "Remover" : "Favoritar")}
                     </Button>
                   </div>
-                  
+
                 </div>
               </div>
             </CarouselItem>

@@ -1,10 +1,10 @@
 // Arquivo: Frontend/src/components/MovieCard.tsx
-// (Refatorado para o design "TMDb/LUMIÈRE")
+// (Atualizado com o novo RatingCircle estilo "donut")
 
 import { Link } from "@tanstack/react-router"
 import { Button } from "@/components/ui/button"
 import { Heart } from "lucide-react"
-import { cn } from "@/lib/utils"
+import { RatingCircle } from "./RaitingCircle"
 import {
   Tooltip,
   TooltipContent,
@@ -12,7 +12,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip"
 
-// (Interface - Adicionei 'release_date' que estava faltando na sua)
+// (Interface Movie - sem mudanças)
 export interface Movie {
   id: number
   tmdb_id?: number
@@ -21,38 +21,17 @@ export interface Movie {
   overview: string
   rating?: number
   vote_average?: number
-  release_date?: string // <-- Importante (para a data)
+  release_date?: string
   backdrop_path?: string
 }
 
-// (Props - sem mudanças)
+// (Interface MovieCardProps - sem mudanças)
 interface MovieCardProps {
   movie: Movie
   isFavorited: boolean
   onToggleFavorite: () => void
   isLoading: boolean
 }
-
-// --- COMPONENTE INTERNO PARA O CÍRCULO DE NOTA ---
-// (Inspirado na imagem, Goal 5)
-function RatingCircle({ rating }: { rating: number }) {
-  // Define a cor da borda baseado na nota
-  const colorClass = rating >= 70 ? 'border-green-500' : rating >= 40 ? 'border-yellow-500' : 'border-red-600'
-  
-  return (
-    <div className={cn(
-      "absolute bottom-2 left-2 z-10 h-10 w-10 rounded-full",
-      "flex items-center justify-center bg-background/70",
-      "border-2", 
-      colorClass // Aplica a cor da borda
-    )}>
-      <span className="text-black font-bold text-sm">{rating}</span>
-      <span className="text-black text-[8px]">%</span>
-    </div>
-  )
-}
-// --- FIM DO COMPONENTE DE NOTA ---
-
 
 export function MovieCard({ movie, isFavorited, onToggleFavorite, isLoading }: MovieCardProps) {
   
@@ -63,11 +42,10 @@ export function MovieCard({ movie, isFavorited, onToggleFavorite, isLoading }: M
   const rating = Math.round(((movie.vote_average || movie.rating || 0) * 10))
   const year = new Date(movie.release_date || "").getFullYear() || "N/A"
 
-  // (Não usamos mais <Card>. O 'group' é para o hover do título)
   return (
     <div className="flex flex-col group">
       
-      {/* --- IMAGEM E BOTÕES (Goals 3, 4, 5) --- */}
+      {/* --- IMAGEM E BOTÕES --- */}
       <div className="relative">
         {/* Link principal (na imagem) */}
         <Link 
@@ -82,14 +60,13 @@ export function MovieCard({ movie, isFavorited, onToggleFavorite, isLoading }: M
           />
         </Link>
         
-        {/* Círculo de Nota (Goal 5) */}
+        {/* Círculo de Nota (Renderiza o novo componente) */}
         <RatingCircle rating={rating} />
 
-        {/* Botão de Favorito (Goal 4: Apenas Ícone) */}
+        {/* Botão de Favorito (sem mudanças) */}
         <Button 
-          variant="secondary" // (Pode mudar para 'ghost' se preferir)
+          variant="secondary"
           size="icon"
-          // Posicionado no top-right
           className="absolute top-2 right-2 z-10 bg-black/50 hover:bg-black/75 text-white rounded-full h-8 w-8"
           onClick={(e) => {
             e.preventDefault()
@@ -106,9 +83,9 @@ export function MovieCard({ movie, isFavorited, onToggleFavorite, isLoading }: M
         </Button>
       </div>
       
-      {/* --- TEXTO ABAIXO DA IMAGEM (Goals 1, 2, 3) --- */}
+      {/* --- TEXTO ABAIXO DA IMAGEM (sem mudanças) --- */}
       <div className="pt-3">
-        {/* Título com "Letreiro" (Tooltip) (Goal 1 & 2) */}
+        {/* Título com "Letreiro" (Tooltip) */}
         <TooltipProvider delayDuration={300}>
           <Tooltip>
             <TooltipTrigger asChild>
