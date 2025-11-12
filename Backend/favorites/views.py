@@ -226,3 +226,92 @@ class TMDbMovieDetailView(views.APIView):
             return response.Response(data, status=status.HTTP_200_OK)
         except requests.RequestException as e:
             return response.Response({"error": f"Filme não encontrado ou falha na API: {e}"}, status=status.HTTP_404_NOT_FOUND)
+        
+class TMDbTopRatedAPIView(views.APIView):
+    """
+    Busca os filmes com melhor nota (Top Rated) no TMDb.
+    """
+    authentication_classes = []
+    permission_classes = []
+
+    def get(self, request):
+        api_key = settings.TMDB_API_KEY
+        url = f"https://api.themoviedb.org/3/movie/top_rated?api_key={api_key}&language=pt-BR&page=1"
+        try:
+            tmdb_response = requests.get(url)
+            tmdb_response.raise_for_status()
+            data = tmdb_response.json()
+            return response.Response(data, status=status.HTTP_200_OK)
+        except requests.RequestException as e:
+            return response.Response({"error": f"Falha na API do TMDb: {e}"}, status=status.HTTP_503_SERVICE_UNAVAILABLE)
+
+class TMDbTrendingAPIView(views.APIView):
+    """
+    Busca os filmes em tendência (Trending) do 'dia' ou 'semana'.
+    """
+    authentication_classes = []
+    permission_classes = []
+
+    # 'time_window' será 'day' (dia) ou 'week' (semana)
+    def get(self, request, time_window): 
+        api_key = settings.TMDB_API_KEY
+        url = f"https://api.themoviedb.org/3/trending/movie/{time_window}?api_key={api_key}&language=pt-BR"
+        try:
+            tmdb_response = requests.get(url)
+            tmdb_response.raise_for_status()
+            data = tmdb_response.json()
+            return response.Response(data, status=status.HTTP_200_OK)
+        except requests.RequestException as e:
+            return response.Response({"error": f"Falha na API do TMDb: {e}"}, status=status.HTTP_503_SERVICE_UNAVAILABLE)
+        
+class TMDbUpcomingAPIView(views.APIView):
+    """
+    Busca os filmes que serão lançados em breve (Upcoming) no TMDb.
+    """
+    authentication_classes = []
+    permission_classes = []
+
+    def get(self, request):
+        api_key = settings.TMDB_API_KEY
+        url = f"https://api.themoviedb.org/3/movie/upcoming?api_key={api_key}&language=pt-BR&page=1"
+        try:
+            tmdb_response = requests.get(url)
+            tmdb_response.raise_for_status()
+            data = tmdb_response.json()
+            return response.Response(data, status=status.HTTP_200_OK)
+        except requests.RequestException as e:
+            return response.Response({"error": f"Falha na API do TMDb: {e}"}, status=status.HTTP_503_SERVICE_UNAVAILABLE)
+        
+class TMDbMovieVideosView(views.APIView):
+    """
+    Busca os vídeos (trailers) de um filme específico.
+    """
+    authentication_classes = []
+    permission_classes = []
+
+    def get(self, request, movie_id):
+        api_key = settings.TMDB_API_KEY
+        url = f"https://api.themoviedb.org/3/movie/{movie_id}/videos?api_key={api_key}&language=pt-BR"
+        
+        try:
+            tmdb_response = requests.get(url)
+            tmdb_response.raise_for_status()
+            data = tmdb_response.json()
+            
+            # Tenta encontrar o "Trailer Oficial"
+            official_trailer = None
+            for video in data.get('results', []):
+                if video['type'] == 'Trailer' and video['official']:
+                    official_trailer = video
+                    break
+            
+            # Se não achar, pega o primeiro trailer qualquer
+            if not official_trailer:
+                for video in data.get('results', []):
+                    if video['type'] == 'Trailer':
+                        official_trailer = video
+                        break
+
+            return response.Response(official_trailer, status=status.HTTP_200_OK)
+        except requests.RequestException as e:
+            return response.Response({"error": f"Falha na API do TMDb: {e}"}, status=status.HTTP_503_SERVICE_UNAVAILABLE)

@@ -1,15 +1,20 @@
 // Arquivo: Frontend/src/components/MovieCard.tsx
-// (Atualizado para ser um Link clicável)
+// (Atualizado com o novo RatingCircle estilo "donut")
 
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Link } from "@tanstack/react-router"
 import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
 import { Heart } from "lucide-react"
-import { Link } from "@tanstack/react-router" // <-- 1. Importe o Link
+import { RatingCircle } from "./RaitingCircle"
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip"
 
-// ... (interface Movie - sem mudanças) ...
+// (Interface Movie - sem mudanças)
 export interface Movie {
-  id: number // ID do TMDb
+  id: number
   tmdb_id?: number
   title: string
   poster_path: string
@@ -20,6 +25,7 @@ export interface Movie {
   backdrop_path?: string
 }
 
+// (Interface MovieCardProps - sem mudanças)
 interface MovieCardProps {
   movie: Movie
   isFavorited: boolean
@@ -34,53 +40,75 @@ export function MovieCard({ movie, isFavorited, onToggleFavorite, isLoading }: M
     : "https://via.placeholder.com/500x750?text=No+Image"
   
   const rating = Math.round(((movie.vote_average || movie.rating || 0) * 10))
+  const year = new Date(movie.release_date || "").getFullYear() || "N/A"
 
   return (
-    // 2. Envolvemos o Card inteiro em um <Link>
-    // Ele vai para a rota '/filme/' e passa o ID do filme
-    <Link 
-      to="/filme/$movieId" 
-      params={{ movieId: String(movie.id) }}
-      className="flex" // (Para o card ocupar o espaço)
-    >
-      <Card className="flex flex-col relative overflow-hidden w-full transition-transform transform-gpu hover:scale-105">
-        
-        <Badge 
-          variant={rating > 70 ? "default" : "secondary"}
-          className="absolute top-2 right-2 z-10"
+    <div className="flex flex-col group">
+      
+      {/* --- IMAGEM E BOTÕES --- */}
+      <div className="relative">
+        {/* Link principal (na imagem) */}
+        <Link 
+          to="/filme/$movieId" 
+          params={{ movieId: String(movie.id) }}
+          className="block w-full"
         >
-          {rating}%
-        </Badge>
-
-        <CardHeader className="pt-2">
-          <CardTitle className="text-lg h-14 line-clamp-2 pt-4">{movie.title}</CardTitle>
-        </CardHeader>
-        <CardContent className="flex-grow flex flex-col">
           <img 
             src={posterUrl} 
             alt={movie.title}
-            className="rounded-md mb-4 aspect-[2/3] object-cover"
+            className="rounded-md w-full h-full aspect-[2/3] object-cover transition-transform transform-gpu group-hover:scale-105"
           />
-          
-          <Button 
-            variant={isFavorited ? "default" : "outline"} 
-            className="w-full mt-4 z-10" // z-10 para ficar acima do Link
-            // 3. O 'onClick' do botão precisa parar o clique do Link
-            onClick={(e) => {
-              e.preventDefault() // Impede a navegação
-              e.stopPropagation() // Impede que o Link seja acionado
-              onToggleFavorite() // Roda a função de favoritar
-            }}
-            disabled={isLoading}
-          >
-            <Heart 
-              className="mr-2 h-4 w-4" 
-              fill={isFavorited ? "currentColor" : "none"}
-            />
-            {isLoading ? "Salvando..." : (isFavorited ? "Remover" : "Favoritar")}
-          </Button>
-        </CardContent>
-      </Card>
-    </Link>
+        </Link>
+        
+        {/* Círculo de Nota (Renderiza o novo componente) */}
+        <RatingCircle rating={rating} />
+
+        {/* Botão de Favorito (sem mudanças) */}
+        <Button 
+          variant="secondary"
+          size="icon"
+          className="absolute top-2 right-2 z-10 bg-black/50 hover:bg-black/75 text-white rounded-full h-8 w-8"
+          onClick={(e) => {
+            e.preventDefault()
+            e.stopPropagation()
+            onToggleFavorite()
+          }}
+          disabled={isLoading}
+          aria-label="Favoritar"
+        >
+          <Heart 
+            className="h-4 w-4" 
+            fill={isFavorited ? "currentColor" : "none"} 
+          />
+        </Button>
+      </div>
+      
+      {/* --- TEXTO ABAIXO DA IMAGEM (sem mudanças) --- */}
+      <div className="pt-3">
+        {/* Título com "Letreiro" (Tooltip) */}
+        <TooltipProvider delayDuration={300}>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Link 
+                to="/filme/$movieId" 
+                params={{ movieId: String(movie.id) }}
+              >
+                <h3 className="font-semibold text-sm truncate hover:text-primary">
+                  {movie.title}
+                </h3>
+              </Link>
+            </TooltipTrigger>
+            <TooltipContent>
+              <p>{movie.title}</p>
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
+        
+        {/* Data (da inspiração) */}
+        <p className="text-xs text-muted-foreground">
+          {year}
+        </p>
+      </div>
+    </div>
   )
 }
