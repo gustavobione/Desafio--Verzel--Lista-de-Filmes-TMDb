@@ -217,7 +217,7 @@ class TMDbMovieDetailView(views.APIView):
         api_key = settings.TMDB_API_KEY
         
         # Usamos 'append_to_response' para pegar tudo de uma vez
-        url = f"https://api.themoviedb.org/3/movie/{movie_id}?api_key={api_key}&language=pt-BR&append_to_response=credits,watch/providers"
+        url = f"https://api.themoviedb.org/3/movie/{movie_id}?api_key={api_key}&language=pt-BR&append_to_response=credits,watch/providers,release_dates"
 
         try:
             tmdb_response = requests.get(url)
