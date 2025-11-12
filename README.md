@@ -21,9 +21,9 @@ A arquitetura é dividida em duas pastas principais:
 
 ---
 
-## 🚀 Status Atual do Projeto (10/11/2025)
+## 🚀 Status Atual do Projeto (12/11/2025)
 
-Esta seção resume o que foi feito até agora. **Todos os 6 requisitos funcionais** do desafio estão implementados. O Backend está 100% concluído, e o Frontend está 95% concluído (faltando apenas polimento de UI).
+Esta seção resume o que foi feito até agora. **Todos os 6 requisitos funcionais** do desafio estão implementados. O Backend está 100% concluído. O Frontend está funcionalmente completo e em fase de polimento de UI.
 
 ### ✅ Concluído
 * **Setup do Ambiente:**
@@ -40,28 +40,32 @@ Esta seção resume o que foi feito até agora. **Todos os 6 requisitos funciona
         * [X] Configurado o **TanStack Router** (file-based routing).
         * [X] Criado o "esqueleto" de todas as páginas necessárias.
     * [X] **Lógica de Aplicação (Fluxos de Usuário):**
-        * [X] **Cliente de API (fetch):** Criado o `api.ts` (wrapper de `fetch`) que anexa tokens de autenticação automaticamente (substituindo o `axios`).
+        * [X] **Cliente de API (fetch):** Criado o `api.ts` (wrapper de `fetch`) que anexa tokens de autenticação automaticamente.
         * [X] **Estado Global (AuthContext):** Criado o "sistema nervoso" para gerenciar o estado do usuário e dos favoritos.
         * [X] **Fluxo de Autenticação:** Página de Login/Registro 100% funcional (com design "LUMIÈRE").
-        * [X] **Requisito #1 (Pesquisa):** Implementada uma página `/pesquisa` dedicada com filtros responsivos (Sidebar/Sheet) e busca "em tempo real" (debounce).
+        * [X] **Requisito #1 (Pesquisa):** Implementada uma página `/pesquisa` dedicada com filtros responsivos (Sidebar/Sheet) e busca "em tempo real".
         * [X] **Requisito #2 (Detalhes):** Implementada a página de detalhes do filme (`/filme/$movieId`) com Hero, Elenco e Metadados (design "LUMIÈRE").
-        * [X] **Requisito #3 & #5 (Favoritar):** Implementado o fluxo completo de favoritar/desfavoritar, com estado centralizado e feedback visual imediato.
+        * [X] **Requisito #3 & #5 (Favoritar):** Implementado o fluxo completo de favoritar/desfavoritar, com estado centralizado.
         * [X] **Requisito #4 (Gestão de API):** Todos os dados do TMDb são gerenciados e servidos pelo Backend.
         * [X] **Requisito #6 (Compartilhar):** Implementado o fluxo de gerar link (`/favoritos`) e a página pública (`/share/$listId`).
-        * [X] **Rotas Protegidas:** Rota `/favoritos` redireciona usuários não logados com sucesso.
     * [X] **UI Principal:**
         * [X] `Navbar` implementada com design "LUMIÈRE" (3 colunas) e lógica de autenticação.
         * [X] `Footer` criado e implementado no layout raiz.
-        * [X] `MovieCard` refatorado para o design "TMDb" (foco na imagem, nota e favorito flutuantes).
         * [X] `index.tsx` (Home Page) refatorada para o design "LUMIÈRE" (Hero, Top 10, CTAs, Abas com Carrosséis).
+    * [X] **UI Polimento:**
+        * [X] **Req #2 (Detalhes):** Implementado o botão "Assistir Trailer" (`HeroCarousel` e `filme/$movieId`) que abre um `Dialog` (modal) com o trailer do YouTube (`TrailerDialog.tsx`).
+        * [X] **UI (Home):** Refatorado `MovieGrid.tsx` (nas abas da Home) com lógica de "Ver Mais" incremental.
+        * [X] **UI (CTAs):** Adicionado ícones (`lucide-react`) e textos refinados ao componente `CallToAction.tsx`.
+        * [X] **UI (Rating):** Criados os componentes `RatingCircle.tsx` (donut) e `RatingBadge.tsx` (donut-retângulo) para um visual de nota profissional e consistente.
 
 ### 🚧 Próximos Passos
 1.  **Frontend (Refinamento/Polimento):**
-    * [ ] Adicionar `Toast` (Shadcn) para feedback (ex: "Filme salvo!", "Erro ao logar", "Link copiado!").
-    * [ ] Adicionar `Spinners/Skeletons` (Shadcn) para os estados de `isLoading` (no `AuthContext`, `pesquisa.tsx`, etc.).
-    * [ ] **Melhoria (Pesquisa):** Refinar o feedback de "Nenhum resultado encontrado" e o estado de `isLoading` (Skeleton).
-    * [ ] **Melhoria (Favoritos):** Adicionar botões de ação na página (ex: "Gerar Link de Partilha" que agora está no CTA).
-    * [ ] **Melhoria (Detalhes):** Adicionar links/botões para "Trailer" (se disponível) e "Homepage" do filme.
+    * [ ] **Tema:** Implementar o seletor de Tema (Dark/Light Mode) na Navbar.
+    * [ ] **Feedback:** Adicionar `Toast` (Shadcn) para feedback (ex: "Filme salvo!", "Erro ao logar", "Link copiado!").
+    * [ ] **Loading:** Adicionar `Spinners/Skeletons` (Shadcn) para os estados de `isLoading` (no `AuthContext`, `pesquisa.tsx`, etc.).
+    * [ ] **Melhoria (Pesquisa / Rota `/pesquisa`):** Conectar o ícone de Lupa (`<Search />`) na Navbar para focar o input ou navegar para a página `/pesquisa`. Refinar o feedback de "Nenhum resultado encontrado".
+    * [ ] **Melhoria (Favoritos / Rota `/favoritos`):** Polir a UI dos botões de ação (ex: "Gerar Link de Partilha" que agora está no CTA da Home).
+    * [ ] **Melhoria (Detalhes / Rota `/filme/$movieId`):** Adicionar link para a "Homepage" oficial do filme (se a API do TMDb fornecer).
 2.  **Deploy (AWS):**
     * [ ] Iniciar a configuração do RDS, S3 e Elastic Beanstalk.
 
@@ -136,7 +140,7 @@ Esta seção resume o que foi feito até agora. **Todos os 6 requisitos funciona
     2.  **Req #2 (Detalhes):** Criei a `TMDbMovieDetailView` (e a URL `/api/tmdb/movie/<id>/`) usando `append_to_response=credits,watch/providers` para buscar todos os dados do filme de uma só vez.
     3.  **Req #1 (Pesquisa):** Criei a `TMDbDiscoverAPIView` (e URL) para permitir buscas filtradas (gênero, ano, nota).
 * **Progresso do Código (Frontend):**
-    1.  **Req #6 (Share):** Implementei o fluxo de "Compartilhar" na página `/favoritos` (chama `api.post`) e a página `/share/$listId` (chama `api.get` público), reutilizando o `MovieCard` em modo "read-only".
+    1.  **Req #6 (Share):** Implementei o fluxo de "Compartilhar" na página `/favoritos` (chama `api.post`) e a página `/share/$listId` (chama `api.get` público).
     2.  **Req #1 (Pesquisa):** Criei a nova página `/pesquisa` com layout responsivo (Sidebar fixo no desktop, `Sheet` no mobile) e filtros (gênero, ano, nota, etc.) que consomem a API `discover`.
     3.  **Req #2 (Detalhes):** Criei a nova página `/filme/$movieId`, tornando o `MovieCard` um link. A página usa o `loader` do roteador para buscar os dados e os exibe em componentes "burros" (`HeroHeader`, `CastCarousel`, `MetadataSidebar`) inspirados no design do "LUMIÈRE".
     4.  **UI (Navbar):** Refinei o `Navbar.tsx` para o design "LUMIÈRE" final, com menu central arredondado (`NavigationMenu`), links para "Início" e "Pesquisa", e `activeProps` para destacar a rota ativa.
@@ -156,6 +160,28 @@ Esta seção resume o que foi feito até agora. **Todos os 6 requisitos funciona
     3.  `Top10List.tsx` criado para o carrossel "Top 10" (estilo Netflix).
     4.  `CallToAction.tsx` e `Footer.tsx` criados e adicionados ao `__root.tsx`.
 * **Resultado do Dia 5:** A aplicação está com a UI/UX 90% completa, alinhada com a visão de design. O projeto está pronto para o polimento final (Toasts/Spinners) e as melhorias finais nas features.
+
+### Dia 6 (11/11/2025): Polimento de UX (Trailer, "Ver Mais" e CTAs)
+* **O que fiz:** Foco no polimento de componentes interativos para finalizar o fluxo de usuário.
+* **Progresso do Código (Backend):**
+    1.  Adicionado o endpoint `/api/tmdb/movie/<id>/videos/` para buscar dados de trailers.
+* **Progresso do Código (Frontend):**
+    1.  **Req #2 (Detalhes):** Implementado o botão "Assistir Trailer" no `HeroCarousel`. Criado o `TrailerDialog.tsx` (componente "smart") que busca o trailer (usando a nova API) e o exibe em um modal (`Dialog`) com layout responsivo (80vw/80vh).
+    2.  **UI (Home):** Refatorado o `MovieGrid.tsx` (usado nas abas da Home) para ter a lógica de "Ver Mais" incremental (mostrando 5+5+... filmes), com um link final para a página `/pesquisa`.
+    3.  **UI (CTAs):** Adicionado ícones (`lucide-react`) e textos de marketing refinados ao componente `CallToAction.tsx`.
+* **Resultado do Dia 6:** A aplicação está funcionalmente completa e com um alto nível de polimento de UI, pronta para os toques finais (Toasts) e deploy.
+
+### Dia 7 (12/11/2025): Polimento Final da UI (Rating Components)
+* **O que fiz:** Foco total em refinar a consistência da UI, especificamente os indicadores de nota (rating), e implementar o seletor de tema.
+* **Desafios Resolvidos (Frontend):**
+    1.  **UI (Consistência):** O `Badge` padrão (`variant="destructive"`) usado no `HeroCarousel` era inconsistente com o `RatingCircle` (donut) do `MovieCard`.
+    2.  **UI (Solução):** Criei um novo componente reutilizável `RatingBadge.tsx`, que usa a mesma lógica de `conic-gradient` do `RatingCircle`, mas a aplica a um "donut-retângulo", para manter a consistência visual.
+* **Progresso do Código (Frontend):**
+    1.  O `RatingCircle.tsx` foi criado (movido do `MovieCard.tsx`).
+    2.  O `MovieCard.tsx` foi atualizado para *importar* o `RatingCircle`.
+    3.  O `RatingBadge.tsx` foi criado para o Hero.
+    4.  O `HeroCarousel.tsx` foi atualizado para importar e usar o novo `RatingBadge.tsx`.
+* **Resultado do Dia 7:** A UI de notas está 100% consistente em todo o aplicativo. O projeto está pronto para os últimos retoques (Toasts/Spinners) e deploy.
 
 ---
 
@@ -218,7 +244,7 @@ Esta seção resume o que foi feito até agora. **Todos os 6 requisitos funciona
     ```bash
     cd Frontend
     ```
-2.  Instale todas as dependências do Node:
+2.  Instale todas asições as dependências do Node:
     ```bash
     npm install
     ```
