@@ -1,33 +1,40 @@
 // Arquivo: Frontend/src/components/movie/HeroHeader.tsx
+// (Atualizado para usar RatingBadge e TrailerDialog)
 
 import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
-import { Heart, Play } from "lucide-react"
+import { Heart } from "lucide-react"
+import { TrailerDialog } from "@/components/TrailerDialog" // <-- 1. Importar o Dialog
+import { RatingBadge } from "../RaitingBadge"   // <-- 2. Importar o Badge
 
-// (Usamos 'any' por enquanto para simplificar. O ideal
-// seria criar uma interface 'MovieDetails' completa)
 export function HeroHeader({ movie, isFavorited, onToggleFavorite, isFavLoading }: { movie: any, isFavorited: boolean, onToggleFavorite: () => void, isFavLoading: boolean }) {
   const backdropUrl = `https://image.tmdb.org/t/p/original${movie.backdrop_path}`
   
   return (
-    <div className="relative h-[70vh] w-full">
+    <div className="relative h-[75vh] w-full">
       <img src={backdropUrl} alt={movie.title} className="w-full h-full object-cover brightness-50" />
       <div className="absolute inset-0 bg-gradient-to-t from-background via-transparent to-transparent"></div>
       
-      <div className="absolute bottom-0 left-0 container mx-auto p-4 md:p-8 text-white">
+      <div className="absolute bottom-0 left-0 container mx-[5%] p-4 md:p-8 text-white">
         <h1 className="text-4xl md:text-6xl font-bold max-w-2xl">{movie.title}</h1>
+        
+        {/* --- MUDANÇA 1: RATING --- */}
+        {/* Substituído o <Badge> antigo pelo novo <RatingBadge> */}
         <div className="flex items-center gap-4 mt-4">
-          <Badge variant="destructive" className="text-lg">
-            {Math.round((movie.vote_average || 0) * 10)}%
-          </Badge>
-          <span className="text-lg">{new Date(movie.release_date || "").getFullYear()}</span>
+          <RatingBadge 
+            rating={Math.round((movie.vote_average || 0) * 10)} 
+          />
+          <span className="text-lg font-semibold">
+            {new Date(movie.release_date || "").getFullYear()}
+          </span>
         </div>
         
-        <div className="flex items-center gap-2 mt-6">
-          <Button size="lg" className="bg-primary/90">
-            <Play className="mr-2 h-5 w-5" />
-            Play Now
-          </Button>
+        {/* --- MUDANÇA 2: BOTÕES DE AÇÃO --- */}
+        <div className="flex flex-wrap items-center gap-2 mt-8">
+          
+          {/* Botão "Play Now" substituído por "Assistir Trailer" (usando o Dialog) */}
+          <TrailerDialog movieId={movie.id} movieTitle={movie.title} />
+
+          {/* Botão "Favoritar" (a lógica 'onClick' já está correta) */}
           <Button 
             size="lg" 
             variant={isFavorited ? "default" : "outline"} 

@@ -11,7 +11,7 @@ export const Route = createRootRoute({
     <>
       <Navbar />
 
-      <div className="p-4">
+      <div className="flex-grow">
         <Outlet /> {/* As outras rotas serão renderizadas aqui */}
       </div>
 

@@ -9,7 +9,6 @@ import { MovieGrid } from '@/components/MovieGrid'
 import { CallToAction } from '@/components/CallToAction'
 import { Top10List } from '@/components/Top10List'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { MovieCarousel } from '@/components/MovieCarrousel'
 import { Search, Heart, Share2 } from "lucide-react"
 
 // 1. O 'loader' busca TODOS os dados da Home Page de uma vez
