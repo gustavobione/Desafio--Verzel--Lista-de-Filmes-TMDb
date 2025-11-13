@@ -1,32 +1,104 @@
 # Arquivo: Backend/favorites/views.py
 
-from rest_framework import viewsets, views, response, status
-from .models import User, FavoriteMovie, SharedList
-from .serializers import UserSerializer, FavoriteMovieSerializer, SharedListSerializer
+from rest_framework import generics, viewsets, views, response, status
+from .models import User, UserMovieEntry, SharedList
+from .serializers import UserSerializer, UserMovieEntrySerializer, SharedListSerializer
 import requests
 from django.conf import settings  # Para pegar a chave da API
 from rest_framework.permissions import IsAuthenticated
 from .auth import FirebaseAuthentication
-from rest_framework import generics
+from django.db.models import Q
 
 
 # --- API de CRUD para Filmes Favoritos ---
 # ModelViewSet já nos dá GET, POST, PUT, DELETE de graça
-class FavoriteMovieViewSet(viewsets.ModelViewSet):
-    # queryset = FavoriteMovie.objects.all() # <- Linha antiga
-    serializer_class = FavoriteMovieSerializer
+class UserMovieEntryListView(generics.ListAPIView):
+    """
+    Retorna TODAS as entradas de filme (favoritos, vistos, etc.)
+    para o usuário logado.
+    """
+    serializer_class = UserMovieEntrySerializer
     authentication_classes = [FirebaseAuthentication]
-    permission_classes = [IsAuthenticated]  # Só permite usuários logados
-
+    permission_classes = [IsAuthenticated]
     def get_queryset(self):
-        """Esta view só deve retornar os favoritos DO usuário logado."""
         user = self.request.user
-        return FavoriteMovie.objects.filter(user=user)
+        # Retorna todas as entradas que tenham PELO MENOS UMA marcação
+        return UserMovieEntry.objects.filter(
+            Q(is_favorite=True) | Q(is_watch_later=True) | Q(is_watched=True),
+            user=user
+        )
+        
 
-    def perform_create(self, serializer):
-        """Salva o novo favorito associando-o AO usuário logado."""
-        serializer.save(user=self.request.user)
 
+# --- 3. ADICIONE ESTA VIEW (PARA ATUALIZAR UM FILME) ---
+# (POST /api/movie-status/)
+class SetMovieStatusView(views.APIView):
+    """
+    Adiciona, atualiza ou remove um filme de uma lista.
+    Cria a entrada do filme ('UserMovieEntry') se ela não existir.
+    """
+    authentication_classes = [FirebaseAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, *args, **kwargs):
+        tmdb_id = request.data.get('tmdb_id')
+        list_type = request.data.get('list_type') # ex: 'is_favorite'
+        new_value = request.data.get('status') # true ou false
+        
+        # (Dados do filme, para criar se for a primeira vez)
+        movie_data = request.data.get('movie_data', {})
+
+        if not tmdb_id or not list_type:
+            return response.Response(
+                {"error": "tmdb_id e list_type são obrigatórios."}, 
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        # 4. A LÓGICA 'get_or_create'
+        # Encontra a entrada (se existir) ou cria uma nova
+        entry, created = UserMovieEntry.objects.get_or_create(
+            user=request.user,
+            tmdb_id=tmdb_id,
+            # Se for 'created', preenche os dados do filme
+            defaults={
+                'title': movie_data.get('title', 'N/A'),
+                'poster_path': movie_data.get('poster_path', ''),
+                'rating': movie_data.get('rating', 0),
+            }
+        )
+
+        # 5. A LÓGICA DE ATUALIZAÇÃO (O que você pediu)
+        if list_type == 'is_favorite':
+            entry.is_favorite = new_value
+            
+        elif list_type == 'is_watch_later':
+            entry.is_watch_later = new_value
+            if new_value: # Se está adicionando a "Assistir Depois"
+                entry.is_watched = False # Remove de "Já Assistido"
+
+        elif list_type == 'is_watched':
+            entry.is_watched = new_value
+            if new_value: # Se está adicionando a "Já Assistido"
+                entry.is_watch_later = False # Remove de "Assistir Depois"
+        
+        else:
+            return response.Response(
+                {"error": "list_type inválido."}, 
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        # 6. Limpeza: Se todas as flags forem 'False', apaga a entrada
+        if not entry.is_favorite and not entry.is_watch_later and not entry.is_watched:
+            entry.delete()
+            # Retorna um status '204 No Content' (mas com o ID, para o frontend)
+            return response.Response(
+                {"tmdb_id": tmdb_id, "status": "deleted"}, 
+                status=status.HTTP_200_OK
+            )
+        else:
+            entry.save()
+            serializer = UserMovieEntrySerializer(entry)
+            return response.Response(serializer.data, status=status.HTTP_200_OK)
 
 # --- API de CRUD para Links Compartilháveis ---
 class SharedListViewSet(viewsets.ModelViewSet):
@@ -93,11 +165,11 @@ class PublicSharedListAPIView(generics.RetrieveAPIView):
                 # 4. Encontra o usuário que é o "dono" dessa lista
             user_of_list = shared_list_instance.user
                 
-                # 5. Busca TODOS os 'FavoriteMovie' daquele usuário
-            favorites = FavoriteMovie.objects.filter(user=user_of_list)
+                # 5. Busca TODOS os 'UserMovieEntry' daquele usuário
+            favorites = UserMovieEntry.objects.filter(user=user_of_list)
                 
                 # 6. Serializa (converte para JSON) a lista de filmes
-            serializer = FavoriteMovieSerializer(favorites, many=True)
+            serializer = UserMovieEntrySerializer(favorites, many=True)
                 
                 # 7. Retorna a lista de filmes para o frontend
             return response.Response(serializer.data, status=status.HTTP_200_OK)
@@ -166,6 +238,7 @@ class TMDbDiscoverAPIView(views.APIView):
     """
     Busca filmes baseada em filtros (gênero, ano, nota, etc.)
     ou pesquisa por 'query' (nome).
+    ESTA É A VERSÃO V2 (ATUALIZADA)
     """
     authentication_classes = []
     permission_classes = []
@@ -175,26 +248,29 @@ class TMDbDiscoverAPIView(views.APIView):
         base_url = "https://api.themoviedb.org/3"
         
         # Pega todos os filtros da URL (ex: ?page=1&with_genres=28)
-        query = request.query_params.get('query', None)
-        page = request.query_params.get('page', '1')
-        sort_by = request.query_params.get('sort_by', 'popularity.desc')
-        with_genres = request.query_params.get('with_genres', None)
-        primary_release_year = request.query_params.get('primary_release_year', None)
-        vote_average_gte = request.query_params.get('vote_average.gte', None) # Maior ou igual
-
+        # Usamos .copy() para poder modificar (com .pop())
+        query_params = request.query_params.copy()
+        
+        # 1. Pega o 'query' (texto de busca) se existir
+        # Usamos .pop() para removê-lo da lista de filtros
+        query = query_params.pop('query', None)
+        
         try:
             if query:
                 # Se o usuário digitou um nome, usamos a API de "search"
-                endpoint = f"/search/movie?query={query}&page={page}"
+                endpoint = f"/search/movie?query={query[0]}"
             else:
                 # Se o usuário está filtrando, usamos a API "discover"
-                endpoint = f"/discover/movie?page={page}&sort_by={sort_by}"
-                if with_genres:
-                    endpoint += f"&with_genres={with_genres}"
-                if primary_release_year:
-                    endpoint += f"&primary_release_year={primary_release_year}"
-                if vote_average_gte:
-                    endpoint += f"&vote_average.gte={vote_average_gte}"
+                endpoint = f"/discover/movie?"
+                
+                # Adiciona o país (BR) para filtros de classificação e streaming
+                endpoint += "&watch_region=BR&certification_country=BR"
+
+            # 2. Adiciona TODOS os outros parâmetros (filtros) que sobraram
+            # O frontend vai enviar os nomes exatos que o TMDb espera
+            # ex: page=1, sort_by=... with_genres=28, release_date.gte=... etc.
+            if query_params:
+                endpoint += f"&{query_params.urlencode()}"
 
             url = f"{base_url}{endpoint}&api_key={api_key}&language=pt-BR"
             
@@ -203,6 +279,36 @@ class TMDbDiscoverAPIView(views.APIView):
             data = tmdb_response.json()
             return response.Response(data, status=status.HTTP_200_OK)
             
+        except requests.RequestException as e:
+            return response.Response({"error": f"Falha na API do TMDb: {e}"}, status=status.HTTP_503_SERVICE_UNAVAILABLE)
+
+# --- ADICIONE ESTAS DUAS NOVAS VIEWS NO FINAL (se já não o fez) ---
+
+class TMDbLanguagesView(views.APIView):
+    authentication_classes = []
+    permission_classes = []
+    def get(self, request):
+        api_key = settings.TMDB_API_KEY
+        url = f"https://api.themoviedb.org/3/configuration/languages?api_key={api_key}"
+        try:
+            tmdb_response = requests.get(url)
+            tmdb_response.raise_for_status()
+            data = tmdb_response.json()
+            return response.Response(data, status=status.HTTP_200_OK)
+        except requests.RequestException as e:
+            return response.Response({"error": f"Falha na API do TMDb: {e}"}, status=status.HTTP_503_SERVICE_UNAVAILABLE)
+
+class TMDbWatchProvidersView(views.APIView):
+    authentication_classes = []
+    permission_classes = []
+    def get(self, request):
+        api_key = settings.TMDB_API_KEY
+        url = f"https://api.themoviedb.org/3/watch/providers/movie?api_key={api_key}&language=pt-BR&watch_region=BR"
+        try:
+            tmdb_response = requests.get(url)
+            tmdb_response.raise_for_status()
+            data = tmdb_response.json()
+            return response.Response(data, status=status.HTTP_200_OK)
         except requests.RequestException as e:
             return response.Response({"error": f"Falha na API do TMDb: {e}"}, status=status.HTTP_503_SERVICE_UNAVAILABLE)
         
