@@ -4,6 +4,7 @@ import { RouterProvider, createRouter } from '@tanstack/react-router'
 import './index.css'
 import { routeTree } from './routeTree.gen'
 import { AuthProvider, useAuth } from './contexts/AuthContext'
+import { ThemeProvider } from './components/theme-provider'
 
 // Cria o roteador
 const router = createRouter({
@@ -23,9 +24,11 @@ if (!rootElement.innerHTML) {
   const root = ReactDOM.createRoot(rootElement)
   root.render(
     <React.StrictMode>
-      <AuthProvider> 
-        <InnerApp />
-      </AuthProvider>
+      <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
+        <AuthProvider> 
+          <InnerApp />
+        </AuthProvider>
+      </ThemeProvider>
     </React.StrictMode>,
   )
 }

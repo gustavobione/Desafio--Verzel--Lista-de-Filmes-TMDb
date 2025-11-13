@@ -4,6 +4,7 @@
 import * as React from "react"
 import { Link } from "@tanstack/react-router"
 import { useAuth } from "@/contexts/AuthContext"
+import { useTheme } from "next-themes"
 
 // --- Componentes Shadcn ---
 import {
@@ -30,18 +31,47 @@ import { LogOut, Moon, Sun } from "lucide-react"
 // (Placeholder - como você forneceu)
 // ######################################################################
 function ThemeToggle() {
-  const [isDark, setIsDark] = React.useState(true) // Começa como escuro
-  
+  // 3. Pega o tema *real* do next-themes
+  //    (theme = "light", "dark" ou "system")
+  //    (resolvedTheme = "light" ou "dark")
+  const { setTheme, resolvedTheme } = useTheme();
+
+  // 4. Estado de "montado" - Necessário para evitar "hydration mismatch"
+  //    (O servidor não sabe seu tema, o cliente sabe)
+  const [mounted, setMounted] = React.useState(false);
+  React.useEffect(() => setMounted(true), []);
+
+  // 5. Handler de clique (usa o 'setTheme' real)
+  const toggleTheme = () => {
+    // Alterna apenas entre 'light' e 'dark', como você pediu
+    setTheme(resolvedTheme === 'dark' ? 'light' : 'dark');
+  }
+
+  // 6. Define 'isDark' com base no tema *resolvido*
+  const isDark = resolvedTheme === 'dark';
+
+  // 7. Renderiza um placeholder antes da página "hidratar"
+  if (!mounted) {
+    return (
+      <Button variant="ghost" size="icon" aria-label="Togglear tema" disabled>
+        <Sun className="h-[1.2rem] w-[1.2rem] text-muted-foreground" />
+      </Button>
+    );
+  }
+
+  // 8. Renderiza seu botão com a lógica correta
   return (
     <Button 
       variant="ghost" 
       size="icon" 
-      onClick={() => setIsDark(!isDark)}
+      onClick={toggleTheme} // <-- Chama o novo handler
       aria-label="Togglear tema"
     >
       {isDark ? (
+        // Se ESTÁ escuro, mostra o SOL (para ir para o claro)
         <Sun className="h-[1.2rem] w-[1.2rem] text-muted-foreground hover:text-primary" />
       ) : (
+        // Se ESTÁ claro, mostra a LUA (para ir para o escuro)
         <Moon className="h-[1.2rem] w-[1.2rem] text-muted-foreground hover:text-primary" />
       )}
     </Button>
