@@ -19,19 +19,28 @@ class User(models.Model):
         return self.email
 
 # Este modelo armazena os filmes favoritos de um usuário.
-class FavoriteMovie(models.Model):
+class UserMovieEntry(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='favorites')
-    
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='movie_entries')
     tmdb_id = models.IntegerField()
+    
+    # --- A MUDANÇA (CAMPOS BOOLEANOS) ---
+    # Agora um filme pode estar em múltiplas listas
+    is_favorite = models.BooleanField(default=False)
+    is_watch_later = models.BooleanField(default=False)
+    is_watched = models.BooleanField(default=False)
+    # --- FIM DA MUDANÇA ---
+
+    # (Podemos manter os dados do filme aqui para facilitar as buscas)
     title = models.CharField(max_length=255)
     poster_path = models.CharField(max_length=255, blank=True, null=True)
     rating = models.FloatField()
     added_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
-        # Garante que um usuário só pode favoritar um filme uma única vez
-        unique_together = ('user', 'tmdb_id')
+        # Esta regra agora é MAIS IMPORTANTE.
+        # Garante que só existe UMA entrada por usuário/filme.
+        unique_together = ('user', 'tmdb_id') 
 
     def __str__(self):
         return f"{self.title} (para {self.user.email})"
