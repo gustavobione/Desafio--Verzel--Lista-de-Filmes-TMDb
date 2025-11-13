@@ -1,5 +1,8 @@
+// Arquivo: Frontend/src/routes/favoritos.tsx
+// (Refatorado V4: Com 3 MovieCarousels para as novas listas)
+
 import { createFileRoute, useNavigate } from '@tanstack/react-router'
-import { MovieCard, type Movie } from '@/components/MovieCard'
+import { MovieCarousel } from '@/components/MovieCarrousel' // <-- 1. Importa o Carrossel
 import { useAuth } from '@/contexts/AuthContext'
 import { useEffect, useState } from 'react'
 import { Button } from '@/components/ui/button'
@@ -9,35 +12,32 @@ import { api } from '@/lib/api'
 
 export const Route = createFileRoute('/favoritos')({
   component: FavoritosPage,
+  // (O loader não é mais necessário aqui)
 })
 
 function FavoritosPage() {
+  // 2. Pega as 3 listas e o status de loading do "Cérebro" V4
   const { 
     user,
     isLoading,
     favorites, 
-    toggleFavorite, 
-    favoriteLookup, 
-    isFavLoading 
+    watchLater,
+    watched,
   } = useAuth()
   
   const navigate = useNavigate()
 
-  // 5. Estados para o link de compartilhamento
+  // (Lógica do "Compartilhar Lista" - sem mudanças)
   const [shareLink, setShareLink] = useState("")
   const [isCreatingLink, setIsCreatingLink] = useState(false)
 
-  // 6. Lógica para criar o link
   const handleShare = async () => {
     setIsCreatingLink(true)
     try {
-      // Chama a API V2 segura (POST) que você testou
+      // A API 'shared-lists' (V2) ainda funciona, pois não a removemos
       const response = await api.post('/shared-lists/', {})
-      
-      // Monta a URL completa do frontend (localhost)
       const newLink = `${window.location.origin}/share/${response.id}`
       setShareLink(newLink)
-
     } catch (error) {
       console.error("Erro ao criar link:", error)
       // TODO: Adicionar Toast de erro
@@ -45,77 +45,120 @@ function FavoritosPage() {
     setIsCreatingLink(false)
   }
 
-  // Efeito de redirecionamento se não estiver logado
+  // (Proteção de Rota - sem mudanças)
   useEffect(() => {
     if (!isLoading && !user) {
       navigate({ 
         to: '/login', 
-        search: { redirect: '/favoritos' } // Salva onde ele queria ir
+        search: { redirect: '/favoritos' }
       })
     }
   }, [isLoading, user, navigate])
 
   if (isLoading) {
-    return <div>Carregando...</div>
+    return <div>Carregando...</div> // TODO: Skeleton
   }
 
-  // 5. Se chegou aqui, o usuário ESTÁ logado
+  // 3. O NOVO LAYOUT (com Carrosséis)
   return (
-    <div className="container mx-auto">
+    <div className="container max-w-full px-[5%] md:px-[10%] py-8">
+      
+      {/* --- Cabeçalho da Página --- */}
       <div className="flex justify-between items-center mb-6">
-        <h1 className="text-3xl font-bold">Meus Favoritos</h1>
-        
-        {/* 7. O Botão de Compartilhar */}
+        <h1 className="text-3xl font-bold">Minhas Listas</h1>
         <Button 
           onClick={handleShare} 
           disabled={isCreatingLink || favorites.length === 0}
         >
           <Share2 className="mr-2 h-4 w-4" />
-          {isCreatingLink ? "Gerando..." : "Compartilhar Lista"}
+          {isCreatingLink ? "Gerando Link..." : "Compartilhar Favoritos"}
         </Button>
       </div>
 
-      {/* 8. Campo para mostrar o link gerado */}
+      {/* Input para o link gerado (sem mudanças) */}
       {shareLink && (
         <div className="flex gap-2 mb-6 p-4 bg-muted rounded-lg">
-          <Input 
-            type="text" 
-            readOnly 
-            value={shareLink} 
-            className="flex-grow bg-white"
-          />
+          <Input type="text" readOnly value={shareLink} className="flex-grow bg-white" />
           <Button onClick={() => navigator.clipboard.writeText(shareLink)}>
             Copiar
           </Button>
         </div>
       )}
       
-      {favorites.length === 0 ? (
-        <p>Você ainda não salvou nenhum filme.</p>
-      ) : (
-        <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-6 gap-4">
-          {favorites.map((fav) => {
-            const movie: Movie = {
-              id: fav.tmdb_id,
-              tmdb_id: fav.tmdb_id,
-              title: fav.title,
-              poster_path: fav.poster_path,
-              rating: fav.rating,
-              overview: "" 
-            }
-            return (
-              <MovieCard 
-                key={fav.id}
-                movie={movie}
-                isFavorited={favoriteLookup.has(movie.id)}
-                onToggleFavorite={() => toggleFavorite(movie)}
-                isLoading={isFavLoading}
-                
-              />
-            )
-          })}
-        </div>
-      )}
+      {/* --- 4. OS CARROSSÉIS (Layout Netflix) --- */}
+      <div className="flex flex-col gap-12">
+        
+        {/* --- Lista: Favoritos --- */}
+        <section>
+          {favorites.length === 0 ? (
+            <div className="p-4 rounded-lg bg-muted">
+              <h2 className="text-2xl font-semibold mb-4">Meus Favoritos</h2>
+              <p>Você ainda não salvou nenhum filme aqui.</p>
+            </div>
+          ) : (
+            <MovieCarousel 
+              title="Meus Favoritos" 
+              // 5. Mapeia os dados do Backend (UserMovieEntry)
+              //    para o formato que o MovieCard (Movie) espera
+              movies={favorites.map(entry => ({
+                ...entry,
+                id: entry.tmdb_id, // O MovieCard espera 'id' como o tmdb_id
+                vote_average: entry.rating, // Mapeia 'rating' para 'vote_average'
+                // Preenche campos que o Movie[] exige (padrões vazios se não existirem)
+                title: (entry as any).title ?? '',
+                poster_path: (entry as any).poster_path ?? '',
+                overview: (entry as any).overview ?? '',
+              }))} 
+            />
+          )}
+        </section>
+
+        {/* --- Lista: Assistir Depois --- */}
+        <section>
+          {watchLater.length === 0 ? (
+            <div className="p-4 rounded-lg bg-muted">
+              <h2 className="text-2xl font-semibold mb-4">Assistir Depois</h2>
+              <p>Você ainda não salvou nenhum filme aqui.</p>
+            </div>
+          ) : (
+            <MovieCarousel 
+              title="Assistir Depois" 
+              movies={watchLater.map(entry => ({
+                ...entry,
+                id: entry.tmdb_id,
+                vote_average: entry.rating,
+                // Preenche campos que o Movie[] exige (padrões vazios se não existirem)
+                title: (entry as any).title ?? '',
+                poster_path: (entry as any).poster_path ?? '',
+                overview: (entry as any).overview ?? '',
+              }))} 
+            />
+          )}
+        </section>
+
+        {/* --- Lista: Já Assistidos --- */}
+        <section>
+          {watched.length === 0 ? (
+            <div className="p-4 rounded-lg bg-muted">
+              <h2 className="text-2xl font-semibold mb-4">Já Assistidos</h2>
+              <p>Você ainda não marcou filmes como assistidos.</p>
+            </div>
+          ) : (
+            <MovieCarousel 
+              title="Já Assistidos" 
+              movies={watched.map(entry => ({
+                ...entry,
+                id: entry.tmdb_id,
+                vote_average: entry.rating,
+                // Preenche campos que o Movie[] exige (padrões vazios se não existirem)
+                title: (entry as any).title ?? '',
+                poster_path: (entry as any).poster_path ?? '',
+                overview: (entry as any).overview ?? '',
+              }))} 
+            />
+          )}
+        </section>
+      </div>
     </div>
   )
 }
