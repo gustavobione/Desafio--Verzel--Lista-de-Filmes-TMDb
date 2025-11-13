@@ -1,14 +1,18 @@
 // Arquivo: Frontend/src/routes/pesquisa.tsx
-// (A PÁGINA "SMART" COMPLETA)
+// (Refatorado V6: Lógica completa de filtros avançados)
 
-import { createFileRoute, useNavigate } from '@tanstack/react-router'
-import { useEffect, useState } from 'react'
+import { createFileRoute } from '@tanstack/react-router'
+import { useEffect, useState, useMemo } from 'react'
 import { api } from '@/lib/api'
-import { Input } from '@/components/ui/input' // Para o search-box
 import { MovieCard, type Movie } from '@/components/MovieCard'
-import { useAuth } from '@/contexts/AuthContext'
-import { SearchFilters, type Genre, type Filters } from '@/components/SearchFilters'
+import { SearchFilters, type Genre, type Language, type Provider, type Filters } from '@/components/SearchFilters' // <-- Tipos atualizados
 import { AppPagination } from '@/components/AppPagination'
+import {
+  Sheet, SheetContent, SheetTrigger,
+} from "@/components/ui/sheet"
+import { Filter } from 'lucide-react'
+import { Button } from '@/components/ui/button'
+import { Skeleton } from "@/components/ui/skeleton"
 
 // --- Hook de Debounce (para a busca em tempo real) ---
 function useDebounce(value: string, delay: number) {
@@ -21,172 +25,263 @@ function useDebounce(value: string, delay: number) {
   }, [value, delay])
   return debouncedValue
 }
-// --- Fim do Hook ---
 
-// 1. O 'loader' busca os dados iniciais (Gêneros e 1ª página de Populares)
+// --- Funções Auxiliares ---
+const getTodayDate = () => new Date().toISOString().split('T')[0]
+const getPastDate = (yearsAgo: number) => {
+  const date = new Date()
+  date.setFullYear(date.getFullYear() - yearsAgo)
+  return date.toISOString().split('T')[0]
+}
+
+// --- 1. O 'loader' busca TODOS os dados para os filtros ---
 export const Route = createFileRoute('/pesquisa')({
   loader: async () => {
     try {
-      const [genreRes, movieRes] = await Promise.all([
+      const [genreRes, langRes, providerRes, movieRes] = await Promise.all([
         api.get('/tmdb/genres/'),
+        api.get('/tmdb/languages/'),
+        api.get('/tmdb/watch-providers/'),
         api.get('/tmdb/discover/', { page: '1', sort_by: 'popularity.desc' })
       ])
       
+      // Filtra os provedores para os 8 mais populares (Netflix, Disney, etc.)
+      const popularProviderIds = [8, 9, 337, 384, 119, 531, 350, 2];
+      
       return {
         genres: genreRes.genres as Genre[],
+        languages: langRes as Language[],
+        providers: providerRes.results.filter((p: Provider) => popularProviderIds.includes(p.provider_id)) as Provider[],
         initialMovies: movieRes.results as Movie[],
-        initialTotalPages: movieRes.total_pages as number
+        initialTotalPages: movieRes.total_pages as number,
+        initialTotalResults: movieRes.total_results as number,
       }
     } catch (error) {
       console.error("Erro ao carregar dados da página de pesquisa:", error)
-      return { genres: [], initialMovies: [], initialTotalPages: 1 }
+      return { genres: [], languages: [], providers: [], initialMovies: [], initialTotalPages: 1, initialTotalResults: 0 }
     }
   },
   component: PesquisaPage,
 })
 
+// --- A PÁGINA "SMART" ---
 function PesquisaPage() {
-  // 2. Pega os dados iniciais do 'loader'
-  const { genres, initialMovies, initialTotalPages } = Route.useLoaderData()
+  const { 
+    genres, 
+    languages, 
+    providers, 
+    initialMovies, 
+    initialTotalPages, 
+    initialTotalResults 
+  } = Route.useLoaderData()
   
-  // 3. Pega a lógica de favoritos do "Cérebro"
-  const { user, toggleFavorite, favoriteLookup, isFavLoading } = useAuth()
-  const navigate = useNavigate()
-
-  // 4. ESTADO DA PÁGINA (O CÉREBRO "SMART")
-  const [query, setQuery] = useState("") // O texto da barra de busca
   const [results, setResults] = useState(initialMovies)
   const [totalPages, setTotalPages] = useState(initialTotalPages)
+  const [totalResults, setTotalResults] = useState(initialTotalResults)
   const [currentPage, setCurrentPage] = useState(1)
   const [isLoading, setIsLoading] = useState(false)
+
+  // 2. O NOVO ESTADO DE FILTROS (V6)
   const [filters, setFilters] = useState<Filters>({
-    genre: "all",
-    year: [new Date().getFullYear()], // Começa no ano atual
-    rating: "0",
+    query: "",
+    genres: [],
+    certifications: [],
+    languages: [],
+    providers: [],
+    releaseDate: {
+      searchAll: true,
+      from: getPastDate(5), // 5 anos atrás
+      to: getTodayDate(),   // Hoje
+    },
+    voteAverage: [0, 10], // 0 a 10
+    runtime: [0, 360],    // 0 a 360 min
     sortBy: "popularity.desc"
   })
 
-  // 5. LÓGICA DE BUSCA E FILTRO
-  const debouncedQuery = useDebounce(query, 500) // 500ms de delay (busca em tempo real)
+  // 3. Debounce APENAS no 'query'
+  const debouncedQuery = useDebounce(filters.query, 500)
 
-  // O 'useEffect' re-busca da API sempre que os filtros, a página ou o texto mudam
+  // 4. O NOVO 'useEffect' que lê os filtros V6
   useEffect(() => {
-    // Não busca na carga inicial (já temos dados do loader)
-    if (currentPage === 1 && !debouncedQuery && filters.genre === "all") {
-      return
-    }
-
     const fetchFilteredMovies = async () => {
       setIsLoading(true)
       
+      let endpoint = '/tmdb/discover/' // Endpoint padrão
       const params: Record<string, string> = {
         page: String(currentPage),
       }
 
-      // Adiciona filtros se eles não forem os padrões
+      // Se há um termo de busca (texto), usa a rota "search"
       if (debouncedQuery) {
+        endpoint = '/search-tmdb/' // Rota do Backend
         params.query = debouncedQuery
-      } else {
-        // Só adiciona filtros de "discover" se não houver "query"
+      } 
+      // Se NÃO há texto, usa a rota "discover" com filtros
+      else {
         params.sort_by = filters.sortBy
-        if (filters.genre !== "all") {
-          params.with_genres = filters.genre
+        if (filters.genres.length > 0) {
+          params.with_genres = filters.genres.join(',') // "E"
         }
-        params.primary_release_year = String(filters.year[0])
-        if (filters.rating !== "0") {
-          params.vote_average_gte = filters.rating
+        if (filters.providers.length > 0) {
+          params.with_watch_providers = filters.providers.join('|') // "OU"
+        }
+        if (filters.languages.length > 0) {
+          params.with_original_language = filters.languages.join('|') // "OU"
+        }
+        if (filters.certifications.length > 0) {
+          params.certification_country = 'BR'
+          params.certification = filters.certifications.join('|') // "OU"
+        }
+        if (!filters.releaseDate.searchAll) {
+          params['release_date.gte'] = filters.releaseDate.from
+          params['release_date.lte'] = filters.releaseDate.to
+        }
+        if (filters.voteAverage[0] > 0) {
+          params['vote_average.gte'] = String(filters.voteAverage[0])
+        }
+        if (filters.voteAverage[1] < 10) {
+          params['vote_average.lte'] = String(filters.voteAverage[1])
+        }
+        if (filters.runtime[0] > 0) {
+          params['with_runtime.gte'] = String(filters.runtime[0])
+        }
+        if (filters.runtime[1] < 360) {
+          params['with_runtime.lte'] = String(filters.runtime[1])
         }
       }
       
       try {
-        // Chama a nova API "discover"
-        const res = await api.get('/tmdb/discover/', params)
+        const res = await api.get(endpoint, params)
         setResults(res.results)
-        setTotalPages(Math.min(res.total_pages, 20)) // Limita a 20 páginas como pedido
+        setTotalPages(Math.min(res.total_pages, 20))
+        setTotalResults(res.total_results)
       } catch (error) {
         console.error("Erro ao buscar filmes:", error)
+        setResults([])
+        setTotalPages(1)
+        setTotalResults(0)
       }
       setIsLoading(false)
     }
 
     fetchFilteredMovies()
     
-  }, [debouncedQuery, filters, currentPage]) // <- Dependências
+  }, [debouncedQuery, filters, currentPage]) // Re-busca em qualquer mudança
 
-  // 6. Handlers (passados para os componentes "burros")
-  const handleFilterChange = (key: keyof Filters, value: any) => {
-    setFilters(prev => ({ ...prev, [key]: value }))
-    setCurrentPage(1) // Reseta a paginação
-  }
-
+  // 5. Handlers
   const handlePageChange = (page: number) => {
     setCurrentPage(page)
   }
 
-  const handleToggleFavorite = (movie: Movie) => {
-    if (!user) {
-      navigate({ to: '/login' })
-      return
-    }
-    toggleFavorite(movie)
-  }
+  // O componente "burro" agora gerencia seus próprios handlers internos
+  // Nós só passamos o 'filters' e 'setFilters'
+  const filterComponent = useMemo(() => (
+    <SearchFilters
+      genres={genres}
+      languages={languages}
+      providers={providers}
+      filters={filters}
+      setFilters={setFilters} // Passa o 'setFilters' para o componente "burro"
+    />
+  ), [genres, languages, providers, filters]); // 'setFilters' é estável
 
   return (
-    <div className="container mx-auto">
+    <div className="container max-w-full px-[5%] md:px-[10%] py-8 flex flex-col md:flex-row gap-8">
       
-      {/* (Barra de Pesquisa de Texto) */}
-      <Input
-        type="text"
-        placeholder="Pesquisar por nome em tempo real..."
-        className="mb-8"
-        value={query}
-        onChange={(e) => {
-          setQuery(e.target.value)
-          setCurrentPage(1) // Reseta a paginação
-        }}
-      />
-      
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
-        
-        {/* Coluna 1: Filtros (Componente "Burro") */}
-        <aside className="md:col-span-1">
-          <h2 className="text-xl font-semibold mb-4">Filtros</h2>
-          <SearchFilters
-            genres={genres}
-            filters={filters}
-            onFiltersChange={handleFilterChange}
-          />
-        </aside>
+      {/* --- Sidebar de Filtros (Desktop) --- */}
+      <aside className="hidden md:block w-full md:w-[300px] lg:w-[350px] flex-shrink-0">
+        <div className="sticky top-20 h-[calc(100vh-100px)] overflow-y-auto pr-4">
+          {filterComponent}
+        </div>
+      </aside>
 
-        {/* Coluna 2: Resultados (Componente "Burro") */}
-        <main className="md:col-span-3">
-          {isLoading ? (
-            <p>Carregando...</p> // TODO: Skeleton
-          ) : (
-            <>
-              {/* A Grade de Filmes */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+      {/* --- Main Content (Resultados) --- */}
+      <main className="flex-grow min-w-0">
+        
+        {/* --- O CABEÇALHO ATUALIZADO --- */}
+        <div className="mb-6 flex flex-col sm:flex-row sm:justify-between sm:items-baseline">
+          
+          {/* Título (Esquerda) */}
+          <div>
+            {filters.query ? (
+              <h2 className="text-2xl font-bold">
+                Resultados para: <span className="text-primary">“{filters.query}”</span>
+              </h2>
+            ) : (
+              <h2 className="text-2xl font-bold">Explorar Filmes</h2>
+            )}
+          </div>
+          
+          {/* Contador (Direita - APENAS DESKTOP) */}
+          {!isLoading && totalResults > 0 && (
+            <p className="text-base text-muted-foreground mt-1 sm:mt-0 hidden sm:block">
+              <span className="font-semibold text-primary">
+                {totalResults >= 10000 ? "+10.000" : totalResults.toLocaleString('pt-BR')}
+              </span> 
+              {" "}filmes encontrados
+            </p>
+          )}
+
+          {/* Botão de Filtros Mobile (Direita) */}
+          <Sheet>
+            <SheetTrigger asChild>
+              <Button variant="outline" className="md:hidden flex-shrink-0 mt-4 sm:mt-0">
+                <Filter className="mr-2 h-4 w-4" />
+                Filtros e Busca
+              </Button>
+            </SheetTrigger>
+            <SheetContent side="left" className="w-[320px] overflow-y-auto">
+              {filterComponent}
+            </SheetContent>
+          </Sheet>
+        </div>
+
+        {/* Contador (APENAS MOBILE) */}
+        {!isLoading && totalResults > 0 && (
+          <p className="text-base text-muted-foreground mb-4 sm:hidden">
+            <span className="font-semibold text-primary">
+              {totalResults >= 10000 ? "+10.000" : totalResults.toLocaleString('pt-BR')}
+            </span> 
+            {" "}filmes encontrados
+          </p>
+        )}
+        {/* --- FIM DAS MUDANÇAS --- */}
+
+        {/* --- Grid de Resultados --- */}
+        {isLoading ? (
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+             {Array.from({ length: 15 }).map((_, i) => (
+               <Skeleton key={i} className="aspect-[2/3] w-full rounded-md" />
+             ))}
+          </div>
+        ) : (
+          <>
+            {results.length === 0 ? (
+              <div className="text-center py-12 border rounded-lg bg-muted/50">
+                <p className="text-lg font-medium">Nenhum filme encontrado.</p>
+                <p className="text-muted-foreground">Tente ajustar seus filtros ou termo de busca.</p>
+              </div>
+            ) : (
+              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
                 {results.map((movie) => (
                   <MovieCard 
                     key={movie.id} 
                     movie={movie}
-                    isFavorited={favoriteLookup.has(movie.id)}
-                    onToggleFavorite={() => handleToggleFavorite(movie)}
-                    isLoading={isFavLoading}
                   />
                 ))}
               </div>
-              
-              {/* O Componente de Paginação */}
+            )}
+            
+            {results.length > 0 && (
               <AppPagination 
                 currentPage={currentPage}
                 totalPages={totalPages}
                 onPageChange={handlePageChange}
               />
-            </>
-          )}
-        </main>
-      </div>
+            )}
+          </>
+        )}
+      </main>
     </div>
   )
 }
