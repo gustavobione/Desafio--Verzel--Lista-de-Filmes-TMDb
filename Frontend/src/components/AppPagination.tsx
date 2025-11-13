@@ -1,5 +1,3 @@
-// Arquivo: Frontend/src/components/AppPagination.tsx
-
 import {
   Pagination,
   PaginationContent,

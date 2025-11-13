@@ -1,6 +1,4 @@
 import { Github } from 'lucide-react';
-
-// (Substitua pela URL real do seu repositório/perfil)
 const GITHUB_URL = "https://github.com/gustavobione/Desafio--Verzel--Lista-de-Filmes-TMDb" 
 const CREATOR_URL = "https://github.com/gustavobione"
 const VERZEL_URL = "https://www.verzel.com.br/pt/"
@@ -10,7 +8,7 @@ export function Footer() {
     <footer className="mt-16 border-t">
       <div className="container max-w-full flex flex-col items-center justify-between gap-4 py-8 md:flex-row px-[5%] md:px-[10%]">
         
-        {/* Lado Esquerdo: Texto de Contexto */}
+        {/* Texto de Contexto */}
         <div className="text-sm text-muted-foreground text-center md:text-left">
           <p>
             Criado por{" "}
@@ -38,7 +36,7 @@ export function Footer() {
           </p>
         </div>
         
-        {/* Lado Direito: Links de Ação */}
+        {/* Links de Ação */}
         <div className="flex items-center gap-4">
           <a
             href={GITHUB_URL}
@@ -49,8 +47,6 @@ export function Footer() {
             <Github className="h-4 w-4" />
             Ver o Código
           </a>
-          
-          {/* É uma boa prática atribuir a API de dados */}
           <a
             href="https://www.themoviedb.org/"
             target="_blank"

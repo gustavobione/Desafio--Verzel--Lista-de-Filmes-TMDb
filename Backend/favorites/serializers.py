@@ -1,20 +1,15 @@
-# Arquivo: Backend/favorites/serializers.py
-
 from rest_framework import serializers
-from .models import User, FavoriteMovie, SharedList
+from .models import User, UserMovieEntry, SharedList
 
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ['id', 'email', 'name']
 
-class FavoriteMovieSerializer(serializers.ModelSerializer):
+class UserMovieEntrySerializer(serializers.ModelSerializer):
     class Meta:
-        model = FavoriteMovie
-        # Vamos expor todos os campos
+        model = UserMovieEntry
         fields = '__all__'
-        # Vamos fazer o 'user' ser "apenas leitura".
-        # A lógica da view (Etapa 4) irá preenchê-lo
         read_only_fields = ['user', 'id', 'added_at']
 
 class SharedListSerializer(serializers.ModelSerializer):

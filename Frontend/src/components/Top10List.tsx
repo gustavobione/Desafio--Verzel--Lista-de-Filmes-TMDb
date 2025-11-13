@@ -1,6 +1,3 @@
-// Arquivo: Frontend/src/components/Top10List.tsx
-// (Refatorado para usar Carousel)
-
 import { Link } from "@tanstack/react-router"
 import type { Movie } from "./MovieCard"
 import {
@@ -28,7 +25,6 @@ export function Top10List({ movies, title }: Top10ListProps) {
         className="w-full"
       >
         <CarouselContent className="-ml-2 gap-1 px-1">
-          {/* Pega os 10 primeiros */}
           {movies.slice(0, 10).map((movie, index) => (
             <CarouselItem 
               key={movie.id} 
@@ -39,13 +35,11 @@ export function Top10List({ movies, title }: Top10ListProps) {
                 params={{ movieId: String(movie.id) }}
                 className="group relative aspect-[2/3] rounded-md overflow-hidden transition-transform transform-gpu hover:scale-105 block"
               >
-                {/* O Pôster */}
                 <img 
                   src={`https://image.tmdb.org/t/p/w500${movie.poster_path}`} 
                   alt={movie.title}
                   className="w-full h-full object-cover"
                 />
-                {/* O Número (Estilo Netflix) */}
                 <div className="absolute -bottom-6 -left-3">
                   <span className="text-9xl font-bold text-background/80 stroke-black group-hover:text-primary transition-colors [text-shadow:_2px_2px_4px_rgb(0_0_0_/_40%)]">
                     {index + 1}

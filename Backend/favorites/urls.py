@@ -1,9 +1,8 @@
-# Arquivo: Backend/favorites/urls.py
-
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
 from .views import (
-    FavoriteMovieViewSet, 
+    UserMovieEntryListView,
+    SetMovieStatusView,
     SharedListViewSet, 
     TMDbSearchAPIView, 
     PublicSharedListAPIView, 
@@ -16,26 +15,17 @@ from .views import (
     TMDbTrendingAPIView,
     TMDbUpcomingAPIView,
     TMDbMovieVideosView,
+    TMDbLanguagesView,
+    TMDbWatchProvidersView, 
     )
 
-# O Router cria as URLs de CRUD (GET, POST, PUT, DELETE) para nós
 router = DefaultRouter()
-router.register(r'favorites', FavoriteMovieViewSet, basename='favorite-movie')
 router.register(r'shared-lists', SharedListViewSet, basename='shared-list')
 
 urlpatterns = [
-    # URLs do Router (ex: /api/favorites/ e /api/favorites/<id>/)
     path('', include(router.urls)),
-    
-    # URL da nossa view customizada de pesquisa
     path('search-tmdb/', TMDbSearchAPIView.as_view(), name='search-tmdb'),
-
-    # URL para acessar listas compartilhadas publicamente
-    path(
-        'public-list/<uuid:pk>/', 
-        PublicSharedListAPIView.as_view(), 
-        name='public-shared-list'
-    ),
+    path('public-list/<uuid:pk>/', PublicSharedListAPIView.as_view(), name='public-shared-list'),
     path('tmdb/popular/', TMDbPopularAPIView.as_view(), name='tmdb-popular'),
     path('tmdb/now-playing/', TMDbNowPlayingAPIView.as_view(), name='tmdb-now-playing'),
     path('tmdb/genres/', TMDbGenreListView.as_view(), name='tmdb-genres'),
@@ -45,5 +35,9 @@ urlpatterns = [
     path('tmdb/trending/<str:time_window>/', TMDbTrendingAPIView.as_view(), name='tmdb-trending'),
     path('tmdb/upcoming/', TMDbUpcomingAPIView.as_view(), name='tmdb-upcoming'),
     path('tmdb/movie/<int:movie_id>/videos/', TMDbMovieVideosView.as_view(), name='tmdb-movie-videos'),
+    path('movies/', UserMovieEntryListView.as_view(), name='user-movie-list'),
+    path('movie-status/', SetMovieStatusView.as_view(), name='movie-status-set'),
+    path('tmdb/languages/', TMDbLanguagesView.as_view(), name='tmdb-languages'),
+    path('tmdb/watch-providers/', TMDbWatchProvidersView.as_view(), name='tmdb-watch-providers'),
 
 ]

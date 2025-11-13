@@ -1,6 +1,3 @@
-// Arquivo: Frontend/src/components/login-form.tsx
-// (Este é o componente "DUMB" - Apenas UI, recebe tudo via props)
-
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import {
@@ -13,7 +10,6 @@ import {
 import { Input } from "@/components/ui/input"
 import { cn } from '@/lib/utils'
 
-// 1. Definimos a "interface" de todas as props que o "cérebro" (a página) vai nos passar
 interface LoginFormProps {
   email: string
   setEmail: (value: string) => void
@@ -26,7 +22,6 @@ interface LoginFormProps {
   handleGoogleLogin: () => void
 }
 
-// 2. O componente recebe todas as props
 export function LoginForm({
   email,
   setEmail,
@@ -39,15 +34,11 @@ export function LoginForm({
   handleGoogleLogin,
 }: LoginFormProps) {
 
-  // 3. O componente NÃO TEM MAIS hooks (useState, useAuth, etc.)
-  // Ele apenas renderiza o JSX com as props que recebeu.
-
   return (
-    <div className={cn("fixed inset-0 flex items-center justify-center p-4 bg-muted/50 z-50")}>
+    <div className={cn("flex flex-grow items-center justify-center w-full py-12 bg-muted/30")}>
       <Card className="overflow-hidden p-0 shadow-lg w-full max-w-4xl">
         <CardContent className="grid p-0 md:grid-cols-2">
 
-          {/* O form agora usa o handler que veio via prop */}
           <form className="p-6 md:p-8" onSubmit={handleSubmit}>
             <FieldGroup>
               <div className="flex flex-col items-center gap-2 text-center">
@@ -69,9 +60,9 @@ export function LoginForm({
                   type="email"
                   placeholder="m@example.com"
                   required
-                  value={email} // Usa o valor da prop
-                  onChange={(e) => setEmail(e.target.value)} // Usa o handler da prop
-                  disabled={isLoading} // Usa o estado da prop
+                  value={email} 
+                  onChange={(e) => setEmail(e.target.value)} 
+                  disabled={isLoading} 
                 />
               </Field>
 
@@ -91,9 +82,9 @@ export function LoginForm({
                   id="password"
                   type="password"
                   required
-                  value={password} // Usa o valor da prop
-                  onChange={(e) => setPassword(e.target.value)} // Usa o handler da prop
-                  disabled={isLoading} // Usa o estado da prop
+                  value={password} 
+                  onChange={(e) => setPassword(e.target.value)} 
+                  disabled={isLoading} 
                 />
               </Field>
 
@@ -112,7 +103,7 @@ export function LoginForm({
                   variant="outline"
                   type="button"
                   className="w-full bg-white text-black hover:bg-gray-100 hover:text-black"
-                  onClick={handleGoogleLogin} // Usa o handler da prop
+                  onClick={handleGoogleLogin} 
                   disabled={isLoading}
                 >
                   <img
@@ -128,7 +119,7 @@ export function LoginForm({
                 {isSignUp ? "Já tem uma conta? " : "Não tem uma conta? "}
                 <button
                   type="button"
-                  onClick={() => setIsSignUp(!isSignUp)} // Usa o handler da prop
+                  onClick={() => setIsSignUp(!isSignUp)} 
                   className="font-semibold text-primary underline-offset-2 hover:underline"
                   disabled={isLoading}
                 >
@@ -137,8 +128,7 @@ export function LoginForm({
               </FieldDescription>
             </FieldGroup>
           </form>
-
-          {/* --- Seção da Imagem (do Bloco 04) --- */}
+          
           <div className="bg-muted relative hidden md:block">
             <img
               src="https://images.unsplash.com/photo-1598899134739-24c46f58b8c0?q=80&w=2070&auto=format&fit=crop"
