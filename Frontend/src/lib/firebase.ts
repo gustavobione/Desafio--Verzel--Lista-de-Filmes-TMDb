@@ -1,5 +1,3 @@
-// Arquivo: Frontend/src/lib/firebase.ts
-
 import { initializeApp } from "firebase/app";
 import { 
   getAuth, 

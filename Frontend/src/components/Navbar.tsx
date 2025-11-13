@@ -1,12 +1,7 @@
-// Arquivo: Frontend/src/components/Navbar.tsx
-// (Versão final refinada, inspirada no "LUMIÈRE")
-
-import * as React from "react"
+// import * as React from "react" 
 import { Link } from "@tanstack/react-router"
 import { useAuth } from "@/contexts/AuthContext"
-import { useTheme } from "next-themes"
-
-// --- Componentes Shadcn ---
+// import { useTheme } from "next-themes"
 import {
   NavigationMenu,
   NavigationMenuItem,
@@ -24,13 +19,13 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { LogOut, Moon, Sun } from "lucide-react"
+import { LogOut } from "lucide-react"
+// import { Moon, Sun } from "lucide-react"
 
 // ######################################################################
-// COMPONENTE PARA O SELETOR DE TEMA
-// (Placeholder - como você forneceu)
+// COMPONENTE PARA O SELETOR DE TEMA NÃO ESTA PEGANDO, TEM QUE ALTERAR TODOS OS COMPONENTES
 // ######################################################################
-function ThemeToggle() {
+{/* function ThemeToggle() {
   // 3. Pega o tema *real* do next-themes
   //    (theme = "light", "dark" ou "system")
   //    (resolvedTheme = "light" ou "dark")
@@ -76,7 +71,7 @@ function ThemeToggle() {
       )}
     </Button>
   )
-}
+} */}
 // ######################################################################
 
 
@@ -87,7 +82,6 @@ export function Navbar() {
     await logout()
   }
 
-  // (Usando sua lógica 'getInitials' mais robusta)
   const getInitials = () => {
     if (!user) return ""
     const source = user.displayName || user.email || ""
@@ -100,7 +94,6 @@ export function Navbar() {
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       
-      {/* Layout de 3 colunas (Grid) com 'gap' lateral (px-4 ou px-6) */}
       <nav className="container max-w-full h-16 grid grid-cols-3 items-center px-[5%] md:px-[10%]">
         
         {/* --- 1. SLOT ESQUERDO (Logo) --- */}
@@ -116,13 +109,11 @@ export function Navbar() {
             <NavigationMenu>
               <NavigationMenuList className="flex flex-row gap-2">
                 
-                {/* Link "Início" (para a Home /) */}
                 <NavigationMenuItem>
                   <NavigationMenuLink asChild>
                     <Link 
                       to="/" 
                       className={navigationMenuTriggerStyle()}
-                      // Destaque quando a rota é exatamente "/"
                       activeProps={{ className: "bg-background shadow-sm" }}
                       activeOptions={{ exact: true }}
                     >
@@ -130,8 +121,6 @@ export function Navbar() {
                     </Link>
                   </NavigationMenuLink>
                 </NavigationMenuItem>
-
-                {/* Link "Pesquisa" (para /pesquisa) */}
                 <NavigationMenuItem>
                   <NavigationMenuLink asChild>
                     <Link 
@@ -144,7 +133,6 @@ export function Navbar() {
                   </NavigationMenuLink>
                 </NavigationMenuItem>
 
-                {/* Link "Meus Favoritos" (só para logados) */}
                 {user && (
                   <NavigationMenuItem>
                     <NavigationMenuLink asChild>
@@ -165,13 +153,10 @@ export function Navbar() {
         </div>
 
         {/* --- 3. SLOT DIREITO (Ações: Tema + Auth) --- */}
-        {/* (Removi o ícone de Busca daqui para limpar a UI) */}
         <div className="justify-self-end flex items-center gap-2">
           
-          {/* Botão de Tema */}
-          <ThemeToggle />
+          {/* <ThemeToggle /> */}
 
-          {/* Lógica de Autenticação (Login ou Avatar) */}
           {isLoading ? (
             <div className="h-9 w-9 animate-pulse rounded-full bg-muted" />
           ) : user ? (

@@ -1,6 +1,3 @@
-// Arquivo: Frontend/src/components/TrailerDialog.tsx
-// (Corrigido V3: Bordas corretas e largura destravada)
-
 import { useState, useEffect } from "react"
 import { api } from "@/lib/api"
 import {
@@ -28,7 +25,6 @@ export function TrailerDialog({ movieId, movieTitle }: TrailerDialogProps) {
   const [isLoading, setIsLoading] = useState(false)
   const [isOpen, setIsOpen] = useState(false)
 
-  // Busca o trailer QUANDO o modal é aberto
   useEffect(() => {
     if (isOpen) {
       const fetchTrailer = async () => {
@@ -45,7 +41,7 @@ export function TrailerDialog({ movieId, movieTitle }: TrailerDialogProps) {
       }
       fetchTrailer()
     }
-  }, [isOpen, movieId]) // Depende do 'isOpen'
+  }, [isOpen, movieId])
 
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
@@ -55,24 +51,10 @@ export function TrailerDialog({ movieId, movieTitle }: TrailerDialogProps) {
           Assistir Trailer
         </Button>
       </DialogTrigger>
-
-      {/* --- A CORREÇÃO ESTÁ AQUI --- 
-        1. Removemos 'p-0'. O DialogContent agora tem seu padding padrão (p-6).
-        2. Adicionamos 'sm:max-w-none' para DESTRAVAR a largura padrão de 512px.
-        3. 'w-[80vw]' e 'h-[80vh]' agora vão funcionar.
-        4. 'max-w-[1400px]' é um limite de segurança para telas 4K.
-      */}
       <DialogContent className="h-[80vh] w-[80vw] max-w-[1400px] sm:max-w-none p-4 flex flex-col">
-        
-        {/* Este header agora usa o padding do pai, então removemos o p-4 */}
         <DialogHeader className="flex-shrink-0">
           <DialogTitle>{movieTitle}</DialogTitle>
         </DialogHeader>
-
-        {/* Este 'div' agora cresce (flex-grow) dentro do 'DialogContent'
-          e 'h-0' é um truque de flexbox para fazê-lo preencher o 
-          espaço vertical restante.
-        */}
         <div className="flex-grow w-full h-0">
           {isLoading && <p className="flex-grow w-full h-full flex items-center justify-center">Carregando trailer...</p>}
           {!isLoading && videoKey && (
@@ -83,7 +65,7 @@ export function TrailerDialog({ movieId, movieTitle }: TrailerDialogProps) {
               title={movieTitle}
               allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
               allowFullScreen
-              className="border-0 rounded-md" // Adiciona um rounded-md
+              className="border-0 rounded-md"
             ></iframe>
           )}
           {!isLoading && !videoKey && (

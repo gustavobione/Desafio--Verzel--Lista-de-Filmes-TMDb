@@ -1,6 +1,3 @@
-// Arquivo: Frontend/src/components/MovieCard.tsx
-// (Refatorado V6: Botões separados e menu de lista limpo)
-
 import { Link, useNavigate } from "@tanstack/react-router"
 import { Button } from "@/components/ui/button"
 import { Heart, Bookmark, Check, Plus, Trash2, BookmarkCheck } from "lucide-react"
@@ -23,7 +20,6 @@ import { RatingCircle } from "./RaitingCircle"
 import { useAuth } from "@/contexts/AuthContext"
 import type { ListType } from "@/contexts/AuthContext"
 
-// Interface do Filme (sem mudanças)
 export interface Movie {
   id: number
   tmdb_id?: number
@@ -36,13 +32,12 @@ export interface Movie {
   backdrop_path?: string
 }
 
-// Props ATUALIZADAS: O MovieCard agora é "burro"
+
 interface MovieCardProps {
   movie: Movie
 }
 
-// --- BOTÃO DE AÇÃO 1: FAVORITO (SMART) ---
-// (Como você pediu: Botão de acesso rápido no topo)
+// ---  FAVORITOS ---
 function FavoriteActionButton({ movie }: { movie: Movie }) {
   const navigate = useNavigate()
   const { user, movieLookup, setMovieStatus, isListLoading } = useAuth()
@@ -82,8 +77,7 @@ function FavoriteActionButton({ movie }: { movie: Movie }) {
   )
 }
 
-// --- BOTÃO DE AÇÃO 2: LISTAS (SMART) ---
-// (Como você pediu: Botão de lista separado, logo abaixo)
+// ---  LISTAS ---
 function ListActionButton({ movie }: { movie: Movie }) {
   const navigate = useNavigate()
   const { user, movieLookup, setMovieStatus, isListLoading } = useAuth()
@@ -100,7 +94,6 @@ function ListActionButton({ movie }: { movie: Movie }) {
     setMovieStatus(movie, listType, status)
   }
 
-  // Lógica do ícone (o que o botão principal mostra)
   let TriggerIcon = Plus
   let triggerTooltip = "Adicionar a uma lista"
   if (isWatchLater) {
@@ -136,11 +129,8 @@ function ListActionButton({ movie }: { movie: Movie }) {
         </Tooltip>
       </TooltipProvider>
 
-      {/* O Menu Dropdown (SEM O BOTÃO DE FAVORITOS) */}
       <DropdownMenuContent align="end" onClick={(e) => e.preventDefault()}>
         <DropdownMenuLabel>Mover para...</DropdownMenuLabel>
-        
-        {/* A opção "Favoritos" foi REMOVIDA daqui */}
 
         <DropdownMenuItem 
           onClick={() => handleAction('is_watch_later', true)}
@@ -158,7 +148,6 @@ function ListActionButton({ movie }: { movie: Movie }) {
           <span>Já Assistido</span>
         </DropdownMenuItem>
 
-        {/* Lógica de Remoção */}
         {(isWatchLater || isWatched) && (
           <>
             <DropdownMenuSeparator />
@@ -177,7 +166,7 @@ function ListActionButton({ movie }: { movie: Movie }) {
 }
 
 
-// --- O MOVIECARD PRINCIPAL ("BURRO") ---
+// --- O MOVIECARD PRINCIPAL ---
 export function MovieCard({ movie }: MovieCardProps) {
   
   const posterUrl = movie.poster_path 
@@ -190,7 +179,6 @@ export function MovieCard({ movie }: MovieCardProps) {
   return (
     <div className="flex flex-col group">
       <div className="relative">
-        {/* Link principal (na imagem) */}
         <Link 
           to="/filme/$movieId" 
           params={{ movieId: String(movie.id) }}
@@ -205,13 +193,11 @@ export function MovieCard({ movie }: MovieCardProps) {
         
         <RatingCircle rating={rating} />
         
-        {/* OS NOVOS BOTÕES DE AÇÃO (Renderizados separadamente) */}
         <FavoriteActionButton movie={movie} />
         <ListActionButton movie={movie} />
 
       </div>
       
-      {/* --- TEXTO ABAIXO DA IMAGEM (sem mudanças) --- */}
       <div className="pt-3">
         <TooltipProvider delayDuration={300}>
           <Tooltip>

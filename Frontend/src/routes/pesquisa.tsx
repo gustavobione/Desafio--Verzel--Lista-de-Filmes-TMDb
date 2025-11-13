@@ -1,11 +1,8 @@
-// Arquivo: Frontend/src/routes/pesquisa.tsx
-// (Refatorado V6: Lógica completa de filtros avançados)
-
 import { createFileRoute } from '@tanstack/react-router'
 import { useEffect, useState, useMemo } from 'react'
 import { api } from '@/lib/api'
 import { MovieCard, type Movie } from '@/components/MovieCard'
-import { SearchFilters, type Genre, type Language, type Provider, type Filters } from '@/components/SearchFilters' // <-- Tipos atualizados
+import { SearchFilters, type Genre, type Language, type Provider, type Filters } from '@/components/SearchFilters'
 import { AppPagination } from '@/components/AppPagination'
 import {
   Sheet, SheetContent, SheetTrigger,
@@ -26,7 +23,6 @@ function useDebounce(value: string, delay: number) {
   return debouncedValue
 }
 
-// --- Funções Auxiliares ---
 const getTodayDate = () => new Date().toISOString().split('T')[0]
 const getPastDate = (yearsAgo: number) => {
   const date = new Date()
@@ -34,7 +30,6 @@ const getPastDate = (yearsAgo: number) => {
   return date.toISOString().split('T')[0]
 }
 
-// --- 1. O 'loader' busca TODOS os dados para os filtros ---
 export const Route = createFileRoute('/pesquisa')({
   loader: async () => {
     try {
@@ -64,7 +59,6 @@ export const Route = createFileRoute('/pesquisa')({
   component: PesquisaPage,
 })
 
-// --- A PÁGINA "SMART" ---
 function PesquisaPage() {
   const { 
     genres, 
@@ -81,7 +75,6 @@ function PesquisaPage() {
   const [currentPage, setCurrentPage] = useState(1)
   const [isLoading, setIsLoading] = useState(false)
 
-  // 2. O NOVO ESTADO DE FILTROS (V6)
   const [filters, setFilters] = useState<Filters>({
     query: "",
     genres: [],
@@ -90,33 +83,30 @@ function PesquisaPage() {
     providers: [],
     releaseDate: {
       searchAll: true,
-      from: getPastDate(5), // 5 anos atrás
-      to: getTodayDate(),   // Hoje
+      from: getPastDate(5), 
+      to: getTodayDate(),  
     },
-    voteAverage: [0, 10], // 0 a 10
-    runtime: [0, 360],    // 0 a 360 min
+    voteAverage: [0, 10],
+    runtime: [0, 360],   
     sortBy: "popularity.desc"
   })
 
-  // 3. Debounce APENAS no 'query'
   const debouncedQuery = useDebounce(filters.query, 500)
 
-  // 4. O NOVO 'useEffect' que lê os filtros V6
+
   useEffect(() => {
     const fetchFilteredMovies = async () => {
       setIsLoading(true)
       
-      let endpoint = '/tmdb/discover/' // Endpoint padrão
+      let endpoint = '/tmdb/discover/' 
       const params: Record<string, string> = {
         page: String(currentPage),
       }
 
-      // Se há um termo de busca (texto), usa a rota "search"
       if (debouncedQuery) {
-        endpoint = '/search-tmdb/' // Rota do Backend
+        endpoint = '/search-tmdb/'
         params.query = debouncedQuery
       } 
-      // Se NÃO há texto, usa a rota "discover" com filtros
       else {
         params.sort_by = filters.sortBy
         if (filters.genres.length > 0) {
@@ -166,24 +156,22 @@ function PesquisaPage() {
 
     fetchFilteredMovies()
     
-  }, [debouncedQuery, filters, currentPage]) // Re-busca em qualquer mudança
+  }, [debouncedQuery, filters, currentPage]) 
 
   // 5. Handlers
   const handlePageChange = (page: number) => {
     setCurrentPage(page)
   }
 
-  // O componente "burro" agora gerencia seus próprios handlers internos
-  // Nós só passamos o 'filters' e 'setFilters'
   const filterComponent = useMemo(() => (
     <SearchFilters
       genres={genres}
       languages={languages}
       providers={providers}
       filters={filters}
-      setFilters={setFilters} // Passa o 'setFilters' para o componente "burro"
+      setFilters={setFilters}
     />
-  ), [genres, languages, providers, filters]); // 'setFilters' é estável
+  ), [genres, languages, providers, filters]);
 
   return (
     <div className="container max-w-full px-[5%] md:px-[10%] py-8 flex flex-col md:flex-row gap-8">
@@ -198,10 +186,8 @@ function PesquisaPage() {
       {/* --- Main Content (Resultados) --- */}
       <main className="flex-grow min-w-0">
         
-        {/* --- O CABEÇALHO ATUALIZADO --- */}
         <div className="mb-6 flex flex-col sm:flex-row sm:justify-between sm:items-baseline">
           
-          {/* Título (Esquerda) */}
           <div>
             {filters.query ? (
               <h2 className="text-2xl font-bold">
@@ -245,8 +231,7 @@ function PesquisaPage() {
             {" "}filmes encontrados
           </p>
         )}
-        {/* --- FIM DAS MUDANÇAS --- */}
-
+        
         {/* --- Grid de Resultados --- */}
         {isLoading ? (
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">

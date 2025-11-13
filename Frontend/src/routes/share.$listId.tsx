@@ -1,17 +1,12 @@
-// Arquivo: Frontend/src/routes/share.$listId.tsx
-// (Refatorado V4: Grid responsivo e usando MovieCard "Smart")
-
 import { createFileRoute } from '@tanstack/react-router'
 import { api } from '@/lib/api'
 import { MovieCard, type Movie } from '@/components/MovieCard'
-// Não precisamos de useAuth ou useNavigate aqui, o MovieCard cuida disso.
+
 
 export const Route = createFileRoute('/share/$listId')({
-  // O loader busca a lista PÚBLICA
   loader: async ({ params }) => {
     const { listId } = params
     try {
-      // Retorna uma lista de UserMovieEntry (do backend)
       const sharedMovies = await api.get(`/public-list/${listId}/`)
       return sharedMovies
     } catch (error) {
@@ -23,8 +18,6 @@ export const Route = createFileRoute('/share/$listId')({
 })
 
 function SharePage() {
-  // 1. Pega a lista do *amigo* (vinda do loader)
-  // O tipo é 'any' ou a interface do backend, vamos mapear abaixo
   const friendsFavorites = Route.useLoaderData()
 
   return (
@@ -42,31 +35,26 @@ function SharePage() {
           <p className="text-lg font-medium">Esta lista não foi encontrada ou está vazia.</p>
         </div>
       ) : (
-        // 2. O GRID RESPONSIVO
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-6">
           
           {friendsFavorites.map((fav: any) => {
             
-            // 3. Adapta o objeto do backend para a interface 'Movie'
             const movie: Movie = {
-              id: fav.tmdb_id, // O ID do filme (TMDb)
+              id: fav.tmdb_id, 
               tmdb_id: fav.tmdb_id,
               title: fav.title,
               poster_path: fav.poster_path,
-              rating: fav.rating, // O rating que veio do banco
-              // Campos opcionais que podem não vir na lista pública:
+              rating: fav.rating, 
               overview: "", 
               vote_average: fav.rating, 
-              release_date: "" // Data não é crítica na lista compacta
+              release_date: "" 
             }
             
             return (
               <MovieCard 
-                key={fav.id} // O ID único da entrada no banco
+                key={fav.id} 
                 movie={movie}
-                // NÃO passamos mais 'isFavorited' ou handlers.
-                // O MovieCard V6 conecta-se ao AuthContext do USUÁRIO ATUAL
-                // para saber se ELE tem esse filme.
+
               />
             )
           })}

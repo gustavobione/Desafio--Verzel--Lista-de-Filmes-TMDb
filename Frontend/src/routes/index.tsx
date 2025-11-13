@@ -1,9 +1,6 @@
-// Arquivo: Frontend/src/routes/index.tsx
-// (A nova Home Page "Smart", inspirada no LUMIÈRE)
-
 import { createFileRoute } from '@tanstack/react-router'
 import { api } from '@/lib/api'
-import type { Movie } from '@/components/MovieCard' // (Importa a interface)
+import type { Movie } from '@/components/MovieCard' 
 import { HeroCarousel } from '../components/HeroCarrousel'
 import { MovieGrid } from '@/components/MovieGrid'
 import { CallToAction } from '@/components/CallToAction'
@@ -11,11 +8,9 @@ import { Top10List } from '@/components/Top10List'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Search, Heart, Share2 } from "lucide-react"
 
-// 1. O 'loader' busca TODOS os dados da Home Page de uma vez
 export const Route = createFileRoute('/')({
   loader: async () => {
     try {
-      // Carrega os 3 endpoints em paralelo
       const [
         trendingWeekRes,
         popularRes,
@@ -52,14 +47,10 @@ export const Route = createFileRoute('/')({
 })
 
 function HomePage() {
-  // 2. Pega os dados que o 'loader' buscou
   const { popular, nowPlaying, trendingWeek, topRated, upcoming } = Route.useLoaderData()
-
-  // 3. Pega os 5 primeiros filmes "populares" para o Hero
   const heroMovies = trendingWeek.slice(0, 5)
 
   return (
-    // Remove o 'container' daqui para o Hero pegar a tela cheia
     <div className="flex flex-col gap-12 ">
 
       {/* --- 1. HERO CAROUSEL --- */}
@@ -73,7 +64,7 @@ function HomePage() {
           <Top10List title="Top 10 Filmes em Alta Está Semana" movies={trendingWeek} />
         </section>
 
-        {/* --- 3. SEÇÃO DE CTAs (Sempre visível) --- */}
+        {/* --- 3. SEÇÃO DE CTAs --- */}
         <section className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <CallToAction
             icon={Search}
@@ -94,7 +85,7 @@ function HomePage() {
             title="Mostre seu Gosto"
             description="Gere um link público da sua lista para mostrar seu incrível repertório de filmes."
             buttonText="Compartilhar Lista"
-            linkTo="/favoritos" // (O botão de gerar link está na pág. de favoritos)
+            linkTo="/favoritos"
           />
         </section>
 

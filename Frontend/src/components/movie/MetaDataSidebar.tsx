@@ -1,6 +1,3 @@
-// Arquivo: Frontend/src/components/movie/MetadataSidebar.tsx
-// (Refatorado V6: Adiciona lógica "Em Cartaz")
-
 import { Badge } from "@/components/ui/badge"
 import { 
   MonitorPlay, Tags, Calendar, Clock, Languages, 
@@ -36,7 +33,7 @@ function CrewMember({ person }: { person: any }) {
         {imageUrl ? (
           <img src={imageUrl} alt={person.name} className="w-full h-full object-cover" />
         ) : (
-          <div className="w-full h-full bg-muted-foreground/20 flex items-center justify-center">
+          <div className="w-full h-full bg-muted flex items-center justify-center">
             <User className="h-6 w-6 text-muted-foreground/50" />
           </div>
         )}
@@ -112,13 +109,9 @@ function WhereToWatch({ movie }: { movie: any }) {
   
   if (theatricalRelease) {
     const releaseDate = new Date(theatricalRelease.release_date)
-    
-    // --- A CORREÇÃO ESTÁ AQUI ---
-    // 1. Crie a data de "30 dias atrás" primeiro
     const thirtyDaysAgo = new Date()
     thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30)
 
-    // 2. Agora compare os dois objetos Date
     if (releaseDate > thirtyDaysAgo) { 
       return (
         <div className="flex items-center gap-2">
@@ -143,7 +136,7 @@ export function MetadataSidebar({ movie }: { movie: any }) {
   return (
     <aside className="space-y-8 p-4 rounded-lg bg-muted/50">
       
-      {/* 1. Onde Assistir (AGORA COM A NOVA LÓGICA) */}
+      {/* 1. Onde Assistir */}
       <InfoSection icon={MonitorPlay} title="Onde Assistir (BR)">
         <WhereToWatch movie={movie} />
       </InfoSection>
@@ -182,15 +175,20 @@ export function MetadataSidebar({ movie }: { movie: any }) {
       </InfoSection>
 
       {/* 7. SEÇÃO DE DESTAQUE (Equipe) */}
-
+      {(director || composer) && (
+        <div className="space-y-6 p-4 rounded-lg bg-muted">
+          {director && (
             <InfoSection icon={UserSquare} title="Direção">
               <CrewMember person={director} />
             </InfoSection>
-
+          )}
+          {composer && (
             <InfoSection icon={Music} title="Música">
               <CrewMember person={composer} />
             </InfoSection>
-
+          )}
+        </div>
+      )}
       
     </aside>
   )

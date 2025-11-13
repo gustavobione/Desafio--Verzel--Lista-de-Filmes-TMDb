@@ -1,6 +1,3 @@
-// Arquivo: Frontend/src/components/SearchFilters.tsx
-// (Refatorado V7: Com Accordion, Gêneros (Pills) e Streaming (Grid+Texto))
-
 import { useState } from "react"
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
@@ -22,7 +19,7 @@ import {
 } from "@/components/ui/accordion"
 
 
-// --- Interfaces (Como você definiu) ---
+
 export interface Genre { id: number; name: string }
 export interface Language { iso_639_1: string; english_name: string; name: string }
 export interface Provider { provider_id: number; provider_name: string; logo_path: string }
@@ -32,7 +29,7 @@ export interface Filters {
   genres: number[] 
   certifications: string[] 
   languages: string[]
-  providers: number[] // Para streaming
+  providers: number[] 
   releaseDate: {
     searchAll: boolean
     from: string // YYYY-MM-DD
@@ -52,8 +49,8 @@ interface SearchFiltersProps {
 }
 
 const CERTIFICATIONS = ["L", "10", "12", "14", "16", "18"]
-const PROVIDERS_TRUNCATE_LIMIT = 8 // Mostrar 8 streamings
-const GENRES_TRUNCATE_LIMIT = 10    // Mostrar 10 gêneros
+const PROVIDERS_TRUNCATE_LIMIT = 8 
+const GENRES_TRUNCATE_LIMIT = 10
 
 // --- Componente de Filtro ---
 export function SearchFilters({
@@ -92,7 +89,7 @@ export function SearchFilters({
   const genresToShow = showAllGenres ? genres : genres.slice(0, GENRES_TRUNCATE_LIMIT)
 
   return (
-    // 1. O Layout "Acordeão" (Substitui o scroll feio)
+    // 1. O Layout "Acordeão" para os Filtros
     <Accordion type="multiple" defaultValue={['query', 'sort', 'providers', 'genres']} className="w-full">
       
       {/* 2. Busca de Texto (Sempre visível) */}
@@ -109,7 +106,7 @@ export function SearchFilters({
         </AccordionContent>
       </AccordionItem>
 
-      {/* 3. Ordenação (Com A-Z / Z-A) */}
+      {/* 3. Ordenação */}
       <AccordionItem value="sort">
         <AccordionTrigger className="text-base font-semibold">Ordenar por</AccordionTrigger>
         <AccordionContent className="pt-2">
@@ -132,18 +129,16 @@ export function SearchFilters({
         </AccordionContent>
       </AccordionItem>
       
-      {/* 4. Onde Assistir (NOVO GRID com Ícone + Texto) */}
+      {/* 4. Onde Assistir */}
       <AccordionItem value="providers">
         <AccordionTrigger className="text-base font-semibold">Onde Assistir (BR)</AccordionTrigger>
         <AccordionContent className="space-y-4 pt-2">
           <p className="text-xs text-muted-foreground">Filtro "OU" (Ex: Netflix *ou* Max)</p>
-          {/* Grid com 3 colunas */}
           <div className="grid grid-cols-3 gap-2">
             {providersToShow.map((p) => (
               <Button
                 key={p.provider_id}
                 variant="outline"
-                // 'data-[state=on]' é usado pelo Tailwind para estilizar o botão pressionado
                 data-state={filters.providers.includes(p.provider_id) ? 'on' : 'off'}
                 className="h-auto p-2 flex flex-col gap-2 data-[state=on]:border-primary data-[state=on]:bg-primary/10"
                 onClick={() => toggleArrayFilter('providers', p.provider_id)}
@@ -151,7 +146,7 @@ export function SearchFilters({
                 <img 
                   src={`https://image.tmdb.org/t/p/w92${p.logo_path}`} 
                   alt={p.provider_name}
-                  className="h-10 w-10 rounded-md" // Imagem maior e de alta qualidade
+                  className="h-10 w-10 rounded-md"
                 />
                 <span className="text-xs text-center truncate w-full">{p.provider_name}</span>
               </Button>
@@ -165,7 +160,7 @@ export function SearchFilters({
         </AccordionContent>
       </AccordionItem>
 
-      {/* 5. Gêneros (Pills, Ver Mais) */}
+      {/* 5. Gêneros */}
       <AccordionItem value="genres">
         <AccordionTrigger className="text-base font-semibold">Gêneros</AccordionTrigger>
         <AccordionContent className="space-y-4 pt-2">
@@ -234,7 +229,7 @@ export function SearchFilters({
         </AccordionContent>
       </AccordionItem>
       
-      {/* 8. Avaliação (Slider Duplo 0-10) */}
+      {/* 8. Avaliação */}
       <AccordionItem value="rating">
         <AccordionTrigger className="text-base font-semibold">Avaliação (Nota)</AccordionTrigger>
         <AccordionContent className="space-y-4 pt-4">
@@ -251,7 +246,7 @@ export function SearchFilters({
         </AccordionContent>
       </AccordionItem>
 
-      {/* 9. Duração (Slider Duplo 0-360min) */}
+      {/* 9. Duração */}
       <AccordionItem value="runtime">
         <AccordionTrigger className="text-base font-semibold">Duração (min)</AccordionTrigger>
         <AccordionContent className="space-y-4 pt-4">
@@ -268,7 +263,7 @@ export function SearchFilters({
         </AccordionContent>
       </AccordionItem>
       
-      {/* 10. Idioma (Select Pesquisável) */}
+      {/* 10. Idioma */}
       <AccordionItem value="languages">
         <AccordionTrigger className="text-base font-semibold">Idioma Original</AccordionTrigger>
         <AccordionContent className="space-y-2 pt-2">

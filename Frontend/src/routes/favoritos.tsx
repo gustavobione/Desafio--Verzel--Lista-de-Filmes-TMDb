@@ -1,8 +1,5 @@
-// Arquivo: Frontend/src/routes/favoritos.tsx
-// (Refatorado V4: Com 3 MovieCarousels para as novas listas)
-
 import { createFileRoute, useNavigate } from '@tanstack/react-router'
-import { MovieCarousel } from '@/components/MovieCarrousel' // <-- 1. Importa o Carrossel
+import { MovieCarousel } from '@/components/MovieCarrousel' 
 import { useAuth } from '@/contexts/AuthContext'
 import { useEffect, useState } from 'react'
 import { Button } from '@/components/ui/button'
@@ -12,11 +9,10 @@ import { api } from '@/lib/api'
 
 export const Route = createFileRoute('/favoritos')({
   component: FavoritosPage,
-  // (O loader não é mais necessário aqui)
+
 })
 
 function FavoritosPage() {
-  // 2. Pega as 3 listas e o status de loading do "Cérebro" V4
   const { 
     user,
     isLoading,
@@ -27,25 +23,21 @@ function FavoritosPage() {
   
   const navigate = useNavigate()
 
-  // (Lógica do "Compartilhar Lista" - sem mudanças)
   const [shareLink, setShareLink] = useState("")
   const [isCreatingLink, setIsCreatingLink] = useState(false)
 
   const handleShare = async () => {
     setIsCreatingLink(true)
     try {
-      // A API 'shared-lists' (V2) ainda funciona, pois não a removemos
       const response = await api.post('/shared-lists/', {})
       const newLink = `${window.location.origin}/share/${response.id}`
       setShareLink(newLink)
     } catch (error) {
       console.error("Erro ao criar link:", error)
-      // TODO: Adicionar Toast de erro
     }
     setIsCreatingLink(false)
   }
 
-  // (Proteção de Rota - sem mudanças)
   useEffect(() => {
     if (!isLoading && !user) {
       navigate({ 
@@ -56,14 +48,12 @@ function FavoritosPage() {
   }, [isLoading, user, navigate])
 
   if (isLoading) {
-    return <div>Carregando...</div> // TODO: Skeleton
+    return <div>Carregando...</div> 
   }
 
-  // 3. O NOVO LAYOUT (com Carrosséis)
   return (
     <div className="container max-w-full px-[5%] md:px-[10%] py-8">
       
-      {/* --- Cabeçalho da Página --- */}
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-3xl font-bold">Minhas Listas</h1>
         <Button 
@@ -75,7 +65,6 @@ function FavoritosPage() {
         </Button>
       </div>
 
-      {/* Input para o link gerado (sem mudanças) */}
       {shareLink && (
         <div className="flex gap-2 mb-6 p-4 bg-muted rounded-lg">
           <Input type="text" readOnly value={shareLink} className="flex-grow bg-white" />
@@ -85,7 +74,6 @@ function FavoritosPage() {
         </div>
       )}
       
-      {/* --- 4. OS CARROSSÉIS (Layout Netflix) --- */}
       <div className="flex flex-col gap-12">
         
         {/* --- Lista: Favoritos --- */}
@@ -98,13 +86,10 @@ function FavoritosPage() {
           ) : (
             <MovieCarousel 
               title="Meus Favoritos" 
-              // 5. Mapeia os dados do Backend (UserMovieEntry)
-              //    para o formato que o MovieCard (Movie) espera
               movies={favorites.map(entry => ({
                 ...entry,
-                id: entry.tmdb_id, // O MovieCard espera 'id' como o tmdb_id
-                vote_average: entry.rating, // Mapeia 'rating' para 'vote_average'
-                // Preenche campos que o Movie[] exige (padrões vazios se não existirem)
+                id: entry.tmdb_id, 
+                vote_average: entry.rating, 
                 title: (entry as any).title ?? '',
                 poster_path: (entry as any).poster_path ?? '',
                 overview: (entry as any).overview ?? '',
@@ -127,7 +112,6 @@ function FavoritosPage() {
                 ...entry,
                 id: entry.tmdb_id,
                 vote_average: entry.rating,
-                // Preenche campos que o Movie[] exige (padrões vazios se não existirem)
                 title: (entry as any).title ?? '',
                 poster_path: (entry as any).poster_path ?? '',
                 overview: (entry as any).overview ?? '',
@@ -150,7 +134,6 @@ function FavoritosPage() {
                 ...entry,
                 id: entry.tmdb_id,
                 vote_average: entry.rating,
-                // Preenche campos que o Movie[] exige (padrões vazios se não existirem)
                 title: (entry as any).title ?? '',
                 poster_path: (entry as any).poster_path ?? '',
                 overview: (entry as any).overview ?? '',

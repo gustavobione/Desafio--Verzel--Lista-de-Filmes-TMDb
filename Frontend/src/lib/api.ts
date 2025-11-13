@@ -1,24 +1,15 @@
-// Arquivo: Frontend/src/lib/api.ts
-// (Agora usando o 'fetch' nativo)
+import { auth } from './firebase' 
 
-import { auth } from './firebase' // Importa o 'auth' do seu firebase.ts
+const baseURL = 'http://127.0.0.1:8000/api' 
 
-const baseURL = 'http://127.0.0.1:8000/api' // Sua API Django
-
-/**
- * Cria os headers de autenticação para CADA requisição.
- */
 async function getAuthHeaders() {
   const headers = new Headers()
-  // Define que estamos enviando JSON
   headers.append('Content-Type', 'application/json')
 
-  // Pega o usuário atual do Firebase
+
   const user = auth.currentUser
   if (user) {
-    // Pega o token mais recente
     const token = await user.getIdToken()
-    // Adiciona o token no cabeçalho
     headers.append('Authorization', `Bearer ${token}`)
   }
   return headers
@@ -53,13 +44,7 @@ async function handleResponse(response: Response) {
   return response.json()
 }
 
-// ------------------------------------------------------------------
-// Nosso novo objeto 'api' que usa 'fetch'
-// ------------------------------------------------------------------
 export const api = {
-  /**
-   * Faz uma requisição GET
-   */
   get: async (url: string, params?: Record<string, string>) => {
     const headers = await getAuthHeaders()
     let fullUrl = `${baseURL}${url}`
@@ -77,22 +62,17 @@ export const api = {
     return handleResponse(response)
   },
 
-  /**
-   * Faz uma requisição POST
-   */
   post: async (url: string, body: any) => {
     const headers = await getAuthHeaders()
     const response = await fetch(`${baseURL}${url}`, {
       method: 'POST',
       headers: headers,
-      body: JSON.stringify(body), // Converte o objeto JS em string JSON
+      body: JSON.stringify(body),
     })
     return handleResponse(response)
   },
 
-  /**
-   * Faz uma requisição DELETE
-   */
+
   delete: async (url: string) => {
     const headers = await getAuthHeaders()
     const response = await fetch(`${baseURL}${url}`, {
@@ -101,6 +81,4 @@ export const api = {
     })
     return handleResponse(response)
   },
-
-  // (Você pode adicionar 'put' e 'patch' aqui se precisar)
 }

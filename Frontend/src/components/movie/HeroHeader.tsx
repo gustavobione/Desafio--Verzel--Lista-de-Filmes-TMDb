@@ -1,6 +1,3 @@
-// Arquivo: Frontend/src/components/movie/HeroHeader.tsx
-// (Refatorado V7: "Smart", com lógica V4 e UI de botões V6)
-
 import { useNavigate } from "@tanstack/react-router"
 import { Button } from "@/components/ui/button"
 import { 
@@ -12,8 +9,8 @@ import {
   BookmarkCheck 
 } from "lucide-react"
 import { TrailerDialog } from "@/components/TrailerDialog"
-import { RatingBadge } from "@/components/RaitingBadge" // (Corrija o nome se for 'RatingBadge')
-import { useAuth } from "@/contexts/AuthContext" // <-- 1. Importa o "Cérebro"
+import { RatingBadge } from "@/components/RaitingBadge"
+import { useAuth } from "@/contexts/AuthContext"
 import type { Movie } from "@/components/MovieCard"
 import type { ListType } from "@/contexts/AuthContext"
 import {
@@ -26,11 +23,8 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { cn } from "@/lib/utils"
 
-// 2. Removemos as props de auth (isFavorited, etc.)
-// A página "smart" (filme.$movieId) só precisa passar o 'movie'.
 export function HeroHeader({ movie }: { movie: any }) {
   
-  // 3. O componente agora é "Smart" e busca sua própria lógica
   const { 
     user, 
     movieLookup, 
@@ -40,25 +34,20 @@ export function HeroHeader({ movie }: { movie: any }) {
   
   const navigate = useNavigate()
 
-  // 4. Lógica de Status (V4)
   const entry = movieLookup.get(movie.id);
   const isFavorited = entry?.is_favorite || false;
   const isWatchLater = entry?.is_watch_later || false;
   const isWatched = entry?.is_watched || false;
   
-  // Lógica do ícone para o Dropdown
   let TriggerIcon = Plus
   if (isWatchLater) TriggerIcon = BookmarkCheck
   else if (isWatched) TriggerIcon = Check
 
-  // 5. Handler que chama o "Cérebro"
   const handleSetStatus = (listType: ListType, status: boolean) => {
     if (!user) {
       navigate({ to: '/login' });
       return;
     }
-    // O 'movie' aqui vem da API de Detalhes (que é 'any')
-    // Precisamos adaptá-lo para a interface 'Movie'
     const moviePayload: Movie = {
       id: movie.id,
       title: movie.title,
@@ -89,12 +78,10 @@ export function HeroHeader({ movie }: { movie: any }) {
           </span>
         </div>
         
-        {/* --- 6. BOTÕES DE AÇÃO (V6) --- */}
         <div className="flex flex-wrap items-center gap-4 mt-8">
           
           <TrailerDialog movieId={movie.id} movieTitle={movie.title} />
 
-          {/* Botão "Favoritar" (Separado) */}
           <Button 
             size="lg" 
             variant={isFavorited ? "default" : "outline"} 
@@ -148,7 +135,7 @@ export function HeroHeader({ movie }: { movie: any }) {
                 <>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem 
-                    className="text-red-500 focus:text-red-500" 
+                    className="text-destructive focus:text-destructive-foreground focus:bg-destructive" 
                     onClick={() => handleSetStatus(isWatchLater ? 'is_watch_later' : 'is_watched', false)}
                   >
                     <Trash2 className="mr-2 h-4 w-4" />
