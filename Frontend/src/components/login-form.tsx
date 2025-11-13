@@ -43,7 +43,7 @@ export function LoginForm({
   // Ele apenas renderiza o JSX com as props que recebeu.
 
   return (
-    <div className={cn("fixed inset-0 flex items-center justify-center p-4 bg-muted/50 z-50")}>
+    <div className={cn("flex flex-grow items-center justify-center w-full py-12 bg-muted/30")}>
       <Card className="overflow-hidden p-0 shadow-lg w-full max-w-4xl">
         <CardContent className="grid p-0 md:grid-cols-2">
 
