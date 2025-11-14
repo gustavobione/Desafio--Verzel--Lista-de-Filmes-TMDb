@@ -16,58 +16,51 @@ A arquitetura é dividida em duas pastas principais:
 | **Backend** | Python, Django (4.2), Django REST Framework, `PyMySQL`, `django-cors-headers` |
 | **Autenticação** | Firebase Authentication (Login com Google), Firebase Admin SDK |
 | **Banco de Dados (Dev)**| MySQL (via XAMPP / MariaDB 10.4) |
-| **Banco de Dados (Prod)**| AWS RDS (MySQL) |
-| **Deploy (Planejado)** | AWS (Frontend no S3/CloudFront, Backend no EC2/Elastic Beanstalk) |
+| **Banco de Dados (Prod)**| **Docker (MySQL 8.0)** / **AWS RDS (MySQL)** |
+| **Deploy (Planejado)** | **Docker Compose (Local)** / **AWS EC2 (com Docker) + RDS** |
 
 ---
 
-## 🚀 Status Atual do Projeto (12/11/2025)
+## 🚀 Status Atual do Projeto (13/11/2025)
 
-Esta seção resume o que foi feito até agora. **Todos os 6 requisitos funcionais** do desafio estão implementados. O Backend está 100% concluído. O Frontend está funcionalmente completo e em fase de polimento de UI.
+Esta seção resume o que foi feito até agora. **Todos os 6 requisitos funcionais** do desafio estão implementados. O Backend está 100% concluído. O Frontend está funcionalmente completo e 100% "dockerizado".
 
 ### ✅ Concluído
 * **Setup do Ambiente:**
     * [X] Estrutura final do monorepo criada com pastas `Frontend/` e `Backend/`.
     * [X] Gerenciamento de segredos implementado via arquivos `.env` e `.env.example`.
 * **Backend (`Backend/`):**
-    * [X] **API V1 (Lógica):** Testada e funcional via Postman.
-    * [X] **API V2 (Segurança):** 100% concluída, segura e testada.
-    * [X] **API V3 (Features):** Todos os endpoints necessários para Home, Pesquisa, Detalhes e Compartilhamento foram criados e testados.
+    * [X] **API V1-V4 (Lógica):** Todos os endpoints necessários para Home, Pesquisa, Detalhes, Listas Múltiplas e Compartilhamento foram criados e testados.
+    * [X] **Segurança:** 100% concluída, segura com `FirebaseAuthentication`.
 * **Frontend (`Frontend/`):**
-    * [X] Projeto criado com Vite + React + TS.
-    * [X] Configuração completa do Tailwind, Shadcn e Firebase (`firebase.ts`).
-    * [X] **Estrutura de Rotas:**
-        * [X] Configurado o **TanStack Router** (file-based routing).
-        * [X] Criado o "esqueleto" de todas as páginas necessárias.
+    * [X] **Estrutura de Rotas:** Configurado o **TanStack Router** (file-based routing).
     * [X] **Lógica de Aplicação (Fluxos de Usuário):**
-        * [X] **Cliente de API (fetch):** Criado o `api.ts` (wrapper de `fetch`) que anexa tokens de autenticação automaticamente.
-        * [X] **Estado Global (AuthContext):** Criado o "sistema nervoso" para gerenciar o estado do usuário e dos favoritos.
-        * [X] **Fluxo de Autenticação:** Página de Login/Registro 100% funcional (com design "LUMIÈRE").
-        * [X] **Requisito #1 (Pesquisa):** Implementada uma página `/pesquisa` dedicada com filtros responsivos (Sidebar/Sheet) e busca "em tempo real".
-        * [X] **Requisito #2 (Detalhes):** Implementada a página de detalhes do filme (`/filme/$movieId`) com Hero, Elenco e Metadados (design "LUMIÈRE").
-        * [X] **Requisito #3 & #5 (Favoritar):** Implementado o fluxo completo de favoritar/desfavoritar, com estado centralizado.
+        * [X] **Estado Global (AuthContext V4):** Criado o "sistema nervoso" para gerenciar o usuário e as 3 listas (`favorites`, `watchLater`, `watched`).
+        * [X] **Fluxo de Autenticação:** Página de Login/Registro 100% funcional.
+        * [X] **Requisito #1 (Pesquisa):** Implementada a página `/pesquisa` (V8) com filtros avançados (`Accordion`), botão "Aplicar Filtros" e UI "LUMIÈRE".
+        * [X] **Requisito #2 (Detalhes):** Implementada a página de detalhes (`/filme/$movieId`) com UI "LUMIÈRE", `HeroHeader` "smart", `CastCarousel` (V5) e `MetadataSidebar` (V6) polidos.
+        * [X] **Requisito #3 & #5 (Favoritar):** Implementado o fluxo completo com 3 listas (`is_favorite`, `is_watch_later`, `is_watched`) e UI de 2 botões (Coração + Menu).
         * [X] **Requisito #4 (Gestão de API):** Todos os dados do TMDb são gerenciados e servidos pelo Backend.
-        * [X] **Requisito #6 (Compartilhar):** Implementado o fluxo de gerar link (`/favoritos`) e a página pública (`/share/$listId`).
+        * [X] **Requisito #6 (Compartilhar):** Implementado o fluxo de gerar link (`/favoritos`) e a página pública `/share/$listId` (V4) com layout em grid.
     * [X] **UI Principal:**
-        * [X] `Navbar` implementada com design "LUMIÈRE" (3 colunas) e lógica de autenticação.
-        * [X] `Footer` criado e implementado no layout raiz.
-        * [X] `index.tsx` (Home Page) refatorada para o design "LUMIÈRE" (Hero, Top 10, CTAs, Abas com Carrosséis).
-    * [X] **UI Polimento:**
-        * [X] **Req #2 (Detalhes):** Implementado o botão "Assistir Trailer" (`HeroCarousel` e `filme/$movieId`) que abre um `Dialog` (modal) com o trailer do YouTube (`TrailerDialog.tsx`).
-        * [X] **UI (Home):** Refatorado `MovieGrid.tsx` (nas abas da Home) com lógica de "Ver Mais" incremental.
-        * [X] **UI (CTAs):** Adicionado ícones (`lucide-react`) e textos refinados ao componente `CallToAction.tsx`.
-        * [X] **UI (Rating):** Criados os componentes `RatingCircle.tsx` (donut) e `RatingBadge.tsx` (donut-retângulo) para um visual de nota profissional e consistente.
+        * [X] `Navbar`, `Footer`, `MovieCard` (V6), `HeroCarousel` (V6) e `index.tsx` (Home) 100% concluídos e polidos.
+        * [X] **Tema:** Implementada a fundação do Dark/Light Mode (Provider + Botão `ThemeToggle`).
+* **Deploy (Docker):**
+    * [X] **Backend Dockerfile:** Criado com Gunicorn e `collectstatic`.
+    * [X] **Frontend Dockerfile:** Criado com build multi-stage (Vite + NGINX).
+    * [X] **NGINX Config:** `nginx.conf` criado para servir o React e tratar o roteamento SPA.
+    * [X] **Docker Compose:** `docker-compose.yml` criado para orquestrar os 3 containers (backend, frontend, db) localmente, com `healthcheck` para o banco.
 
 ### 🚧 Próximos Passos
-1.  **Frontend (Refinamento/Polimento):**
-    * [ ] **Tema:** Implementar o seletor de Tema (Dark/Light Mode) na Navbar.
+1.  **Frontend (Polimento Final):**
+    * [ ] **Tema:** Concluir a auditoria de cores em todos os componentes para o Dark Mode.
     * [ ] **Feedback:** Adicionar `Toast` (Shadcn) para feedback (ex: "Filme salvo!", "Erro ao logar", "Link copiado!").
-    * [ ] **Loading:** Adicionar `Spinners/Skeletons` (Shadcn) para os estados de `isLoading` (no `AuthContext`, `pesquisa.tsx`, etc.).
-    * [ ] **Melhoria (Pesquisa / Rota `/pesquisa`):** Conectar o ícone de Lupa (`<Search />`) na Navbar para focar o input ou navegar para a página `/pesquisa`. Refinar o feedback de "Nenhum resultado encontrado".
-    * [ ] **Melhoria (Favoritos / Rota `/favoritos`):** Polir a UI dos botões de ação (ex: "Gerar Link de Partilha" que agora está no CTA da Home).
-    * [ ] **Melhoria (Detalhes / Rota `/filme/$movieId`):** Adicionar link para a "Homepage" oficial do filme (se a API do TMDb fornecer).
+    * [ ] **Loading:** Substituir os `<div>Carregando...</div>` por `Spinners/Skeletons` (Shadcn).
 2.  **Deploy (AWS):**
-    * [ ] Iniciar a configuração do RDS, S3 e Elastic Beanstalk.
+    * [X] **Etapa 1: RDS:** Banco de dados MySQL criado na AWS.
+    * [X] **Etapa 2: EC2:** Servidor virtual (`t2.micro`) criado na AWS.
+    * [X] **Etapa 3: Configurar EC2:** Conectar via SSH, instalar Docker/Git.
+    * [X] **Etapa 4: Deploy:** Clonar o repositório, configurar o `.env` de produção (com o Host do RDS) e rodar `docker-compose up -d` no servidor EC2.
 
 ---
 
@@ -171,29 +164,39 @@ Esta seção resume o que foi feito até agora. **Todos os 6 requisitos funciona
     3.  **UI (CTAs):** Adicionado ícones (`lucide-react`) e textos de marketing refinados ao componente `CallToAction.tsx`.
 * **Resultado do Dia 6:** A aplicação está funcionalmente completa e com um alto nível de polimento de UI, pronta para os toques finais (Toasts) e deploy.
 
-### Dia 7 (12/11/2025): Polimento Final da UI (Rating Components)
-* **O que fiz:** Foco total em refinar a consistência da UI, especificamente os indicadores de nota (rating), e implementar o seletor de tema.
+### Dia 7 (12/11/2025): Polimento Final da UI (Rating, Filtros, Listas Múltiplas)
+* **O que fiz:** Foco total em refatorar a lógica de listas e polir a página de pesquisa.
+* **Desafios Resolvidos (Backend):**
+    1.  **Lógica (V4):** O modelo `UserMovieEntry` foi refatorado para usar 3 campos `Boolean` (`is_favorite`, `is_watch_later`, `is_watched`) em vez de um `list_type` único.
+    2.  **API (V4):** A API foi refatorada para `GET /api/movies/` (listar tudo) e `POST /api/movie-status/` (a view "smart" que gerencia a lógica de adicionar/remover/trocar de lista).
 * **Desafios Resolvidos (Frontend):**
-    1.  **UI (Consistência):** O `Badge` padrão (`variant="destructive"`) usado no `HeroCarousel` era inconsistente com o `RatingCircle` (donut) do `MovieCard`.
-    2.  **UI (Solução):** Criei um novo componente reutilizável `RatingBadge.tsx`, que usa a mesma lógica de `conic-gradient` do `RatingCircle`, mas a aplica a um "donut-retângulo", para manter a consistência visual.
-* **Progresso do Código (Frontend):**
-    1.  O `RatingCircle.tsx` foi criado (movido do `MovieCard.tsx`).
-    2.  O `MovieCard.tsx` foi atualizado para *importar* o `RatingCircle`.
-    3.  O `RatingBadge.tsx` foi criado para o Hero.
-    4.  O `HeroCarousel.tsx` foi atualizado para importar e usar o novo `RatingBadge.tsx`.
-* **Resultado do Dia 7:** A UI de notas está 100% consistente em todo o aplicativo. O projeto está pronto para os últimos retoques (Toasts/Spinners) e deploy.
+    1.  **AuthContext (V4):** O "cérebro" foi atualizado para consumir a nova API V4, expor as 3 listas (derivadas com `useMemo`) e a nova função `setMovieStatus`.
+    2.  **UI (V6):** O `MovieCard`, `HeroCarousel` e `HeroHeader` foram atualizados para usar a nova UI de 2 botões (Coração + Menu de Listas) e chamar a função `setMovieStatus`.
+    3.  **UI (Pesquisa V8):** O `SearchFilters.tsx` foi refatorado para usar `<Accordion>` (eliminando o scroll) e o botão "Aplicar Filtros". A página `pesquisa.tsx` (smart) foi atualizada para usar a lógica de "busca manual" (corrigindo bugs de `debounce`) e exibir o total de resultados "+10.000".
+* **Resultado do Dia 7:** A lógica de listas múltiplas está 100% funcional. A página de pesquisa está polida e robusta.
+
+### Dia 8 (13/11/2025): Dockerização e Deploy na AWS
+* **O que fiz:** Foco em preparar a aplicação para o deploy, "dockerizando" todos os serviços e iniciando a configuração da AWS.
+* **Progresso do Código (Docker):**
+    1.  **Backend:** Criado o `Dockerfile` do backend (Python + Gunicorn) e instalado o `gunicorn` no `requirements.txt`.
+    2.  **Frontend:** Criado o `Dockerfile` do frontend (Vite + NGINX) e o `nginx.conf` para o roteamento de SPA.
+    3.  **Orquestração:** Criado o `docker-compose.yml` (V4) com 3 serviços (backend, frontend, db), configurado o `healthcheck` do MySQL e o `command` (para rodar `migrate` e `gunicorn`) no backend.
+* **Progresso do Deploy (AWS):**
+    1.  **Rede:** Configurado `CORS_ALLOWED_ORIGINS` no `settings.py` do Django.
+    2.  **AWS (Etapa 1 - Banco):** Criado o banco de dados **RDS** (MySQL) com "Acesso Público" e o Security Group (firewall) configurado para a porta `3306`.
+    3.  **AWS (Etapa 2 - Servidor):** Criada a instância **EC2** (`t2.micro`) e o Security Group (firewall) configurado para as portas `22`, `8080` e `8000`.
+* **Resultado do Dia 8:** A aplicação está 100% "dockerizada" e pronta para ser implantada na AWS.
 
 ---
 
 ## ⚙️ Como Configurar e Rodar
-
-(Esta seção permanece a mesma)
 
 ### Pré-requisitos
 * **Git**
 * **Node.js** (v18 ou superior)
 * **Python** (3.10 ou superior)
 * **XAMPP** (ou outro servidor MySQL local).
+* **Docker Desktop** (para rodar o `docker-compose`)
 
 ### 1. Configuração do Ambiente
 1.  Clone o repositório:
@@ -201,12 +204,8 @@ Esta seção resume o que foi feito até agora. **Todos os 6 requisitos funciona
     git clone [URL_DO_SEU_REPO]
     cd [NOME_DO_PROJETO]
     ```
-2.  Inicie o **MySQL** pelo painel do XAMPP.
-3.  Acesse o **MySQL Workbench** e crie o banco de dados (o nome deve bater com o `Backend/.env.example`):
-    ```sql
-    CREATE DATABASE verzel_db;
-    ```
-4.  Crie seus arquivos `.env` locais a partir dos exemplos:
+2.  **PARE O XAMPP (MySQL)** (O Docker precisa da porta 3306).
+3.  Crie seus arquivos `.env` locais a partir dos exemplos:
     ```bash
     # No Backend
     cp Backend/.env.example Backend/.env
@@ -214,53 +213,34 @@ Esta seção resume o que foi feito até agora. **Todos os 6 requisitos funciona
     # No Frontend
     cp Frontend/.env.example Frontend/.env
     ```
-5.  Preencha os arquivos `.env` com suas chaves secretas (Firebase, TMDb, Django Secret Key).
+4.  Preencha os arquivos `.env` com suas chaves secretas (Firebase, TMDb, Django Secret Key).
+    * **IMPORTANTE:** No `Backend/.env`, as variáveis `DB_HOST`, `DB_NAME`, `DB_USER`, etc., serão **ignoradas** pelo `docker-compose` (ele usa as variáveis do `environment:`), mas é bom preenchê-las para testes manuais.
 
-### 2. Configuração do Backend
-1.  Abra um terminal e navegue até a pasta `Backend/`:
+### 2. Rodando a Aplicação (Método Docker - Recomendado)
+1.  Inicie o **Docker Desktop**.
+2.  Na pasta raiz do projeto, construa as imagens:
     ```bash
-    cd Backend
+    docker-compose build
     ```
-2.  Crie e ative o ambiente virtual:
+3.  Inicie os 3 containers (em segundo plano):
     ```bash
-    python -m venv venv
-    source venv/Scripts/activate
+    docker-compose up -d
     ```
-3.  Instale todas as dependências:
+4.  (Aguarde 10-15 segundos) Crie seu superusuário:
     ```bash
-    pip install -r requirements.txt
+    docker-compose exec backend python manage.py createsuperuser
     ```
-4.  Rode as migrações:
-    ```bash
-    python manage.py migrate
-    ```
-5.  Crie seu usuário administrador:
-    ```bash
-    python manage.py createsuperuser
-    ```
+5.  Acesse o Frontend em `http://localhost:8080` e o Admin em `http://localhost:8000/admin`.
 
-### 3. Configuração do Frontend
-1.  Abra um **segundo terminal** e navegue até a pasta `Frontend/`:
-    ```bash
-    cd Frontend
-    ```
-2.  Instale todas asições as dependências do Node:
-    ```bash
-    npm install
-    ```
-
-### 4. Rodando a Aplicação
+### 3. Rodando a Aplicação (Método Manual - Dev)
 * **Terminal 1 (Backend):**
     ```bash
     cd Backend
     source venv/Scripts/activate
     python manage.py runserver
     ```
-    *(Rodando em `http://127.0.0.1:8000`)*
-
 * **Terminal 2 (Frontend):**
     ```bash
     cd Frontend
     npm run dev
     ```
-    *(Rodando em `http://localhost:5173`)*
