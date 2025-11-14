@@ -1,61 +1,54 @@
-# Versão do Docker Compose
-version: '3.8'
-
 services:
   # --- SERVIÇO DO BACKEND (DJANGO) ---
   backend:
-    build: ./backend
+    build: ./Backend
     ports:
       - "8000:8000"
     volumes:
-      - ./backend:/app
+      - ./Backend:/app
     
-    # 1. Carrega o seu arquivo existente
     env_file:
-      - ./backend/.env
+      - ./Backend/.env
 
-    # 2. Sobrescreve APENAS as variáveis de Banco de Dados
-    # O Docker dá prioridade ao que está escrito aqui em 'environment'
-    # sobre o que está no ficheiro .env
     environment:
-      - DB_HOST=db                    # Força o uso do container, ignora o 127.0.0.1 do arquivo
+      - DB_HOST=db
       - DB_PORT=3306
-      - DB_NAME=meu_banco_dados       # Deve bater com o MYSQL_DATABASE do serviço 'db' abaixo
-      - DB_USER=meu_usuario           # Deve bater com o MYSQL_USER do serviço 'db' abaixo
-      - DB_PASSWORD=minha_senha_forte # Deve bater com o MYSQL_PASSWORD do serviço 'db' abaixo
+      - DB_NAME=meu_banco_dados
+      - DB_USER=meu_usuario
+      - DB_PASSWORD=minha_senha_forte
     
     depends_on:
-      - db
+      db:
+        condition: service_healthy # <-- Espera o DB estar saudável
+      
+    command: >
+      sh -c "python manage.py migrate &&
+             gunicorn config.wsgi:application --bind 0.0.0.0:8000"
 
   # --- SERVIÇO DO FRONTEND (REACT) ---
   frontend:
-    # Constrói a imagem usando o Dockerfile na pasta ./frontend
-    build: ./frontend
-    # Mapeia a porta 80 do container para a porta 8080 da sua máquina
-    # (Usamos 8080 para não conflitar com outros serviços)
+    build: ./Frontend
     ports:
       - "8080:80"
 
   # --- SERVIÇO DO BANCO DE DADOS (MYSQL) ---
   db:
-    # Usa a imagem oficial do MySQL 8.0
     image: mysql:8.0
-    # Variáveis de ambiente para criar o banco de dados
-    # DEVEM CORRESPONDER às variáveis do backend
     environment:
       MYSQL_DATABASE: meu_banco_dados
       MYSQL_USER: meu_usuario
       MYSQL_PASSWORD: minha_senha_forte
-      # É necessário definir uma senha de root
       MYSQL_ROOT_PASSWORD: minha_senha_root_super_forte
-    # Mapeia a porta 3306 para a sua máquina (para debug, opcional)
     ports:
       - "3306:3306"
-    # Define um "volume". Isso salva os dados do MySQL
-    # mesmo se o container for destruído e recriado.
     volumes:
       - mysql_data:/var/lib/mysql
+    
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p${MYSQL_ROOT_PASSWORD}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
-# Define o volume nomeado que usamos no serviço 'db'
 volumes:
   mysql_data:
